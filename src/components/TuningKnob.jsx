@@ -1,0 +1,94 @@
+import { useCallback, useEffect, useRef } from 'react'
+
+const FREQ_MIN_KHZ = 1800
+const FREQ_MAX_KHZ = 148_000
+const DRAG_SENSITIVITY = 0.18 // kHz per pixel of vertical drag
+
+export default function TuningKnob({ frequency, onChange }) {
+  const dragRef = useRef({ active: false, startY: 0, startFreq: 0 })
+
+  const clamp = (v) => Math.min(FREQ_MAX_KHZ, Math.max(FREQ_MIN_KHZ, Math.round(v)))
+
+  const beginDrag = useCallback((clientY) => {
+    dragRef.current = { active: true, startY: clientY, startFreq: frequency }
+    document.body.style.cursor = 'ns-resize'
+  }, [frequency])
+
+  const updateDrag = useCallback((clientY) => {
+    if (!dragRef.current.active) return
+    const dy = dragRef.current.startY - clientY
+    const next = clamp(dragRef.current.startFreq + dy * DRAG_SENSITIVITY)
+    if (next !== frequency) onChange(next)
+  }, [frequency, onChange])
+
+  const endDrag = useCallback(() => {
+    if (!dragRef.current.active) return
+    dragRef.current.active = false
+    document.body.style.cursor = ''
+  }, [])
+
+  useEffect(() => {
+    const onMove = (e) => updateDrag(e.clientY)
+    const onUp = () => endDrag()
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [updateDrag, endDrag])
+
+  const onWheel = useCallback((e) => {
+    e.preventDefault()
+    const step = e.shiftKey ? 10 : 1
+    onChange(clamp(frequency + (e.deltaY < 0 ? step : -step)))
+  }, [frequency, onChange])
+
+  // visual: knob rotates based on frequency position in the band
+  const rangePct = (frequency - FREQ_MIN_KHZ) / (FREQ_MAX_KHZ - FREQ_MIN_KHZ)
+  const knobRotation = -150 + rangePct * 300
+
+  const mhzPart = Math.floor(frequency / 1000)
+  const khzPart = String(frequency % 1000).padStart(3, '0')
+
+  return (
+    <div className="tuner">
+      <div className="tuner-readout">
+        <span className="mhz">{mhzPart}</span>
+        <span className="dot-sep">.</span>
+        <span className="khz">{khzPart}</span>
+        <span className="unit">MHz</span>
+      </div>
+      <div className="tuner-controls">
+        <button
+          type="button"
+          className="freq-step"
+          onMouseDown={(e) => { e.preventDefault(); onChange(clamp(frequency - 1)) }}
+          aria-label="Step down 1 kHz"
+        >–</button>
+        <div
+          className="tuner-knob"
+          onMouseDown={(e) => { e.preventDefault(); beginDrag(e.clientY) }}
+          onWheel={onWheel}
+          role="slider"
+          aria-label="Frequency tuning"
+          aria-valuemin={FREQ_MIN_KHZ}
+          aria-valuemax={FREQ_MAX_KHZ}
+          aria-valuenow={frequency}
+        >
+          <div className="tuner-knob-inner" style={{ transform: `rotate(${knobRotation}deg)` }}>
+            <div className="tuner-knob-marker" />
+          </div>
+          <div className="tuner-knob-ridges" />
+        </div>
+        <button
+          type="button"
+          className="freq-step"
+          onMouseDown={(e) => { e.preventDefault(); onChange(clamp(frequency + 1)) }}
+          aria-label="Step up 1 kHz"
+        >+</button>
+      </div>
+      <div className="tuner-hint">DRAG · WHEEL · ± 1 kHz</div>
+    </div>
+  )
+}

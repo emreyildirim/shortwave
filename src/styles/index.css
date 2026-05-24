@@ -310,7 +310,7 @@ body::after {
 
 .main {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr) 280px;
   gap: 12px;
   min-height: 0;
 }
@@ -496,6 +496,281 @@ body::after {
 .transmission-banner .pending {
   color: var(--paper-dim);
   text-shadow: none;
+}
+
+/* === RIGHT COLUMN — INSTRUMENTS === */
+
+.instr-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.gauge {
+  background: linear-gradient(180deg, #0c0805 0%, #1a110a 100%);
+  border: 1px solid var(--panel-edge);
+  border-radius: 3px;
+  padding: 12px;
+  position: relative;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+}
+.gauge .gauge-label {
+  font-family: var(--font-stencil);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+/* Signal strength meter (analog needle) */
+.s-meter {
+  position: relative;
+  height: 88px;
+  background: radial-gradient(ellipse at 50% 100%, #20180d 0%, #0a0604 70%);
+  border: 1px solid var(--panel-edge);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.s-meter .arc {
+  position: absolute;
+  inset: 6px 6px 0 6px;
+  border-top: 1px solid var(--paper-dim);
+  border-radius: 100% 100% 0 0 / 100% 100% 0 0;
+}
+.s-meter .needle {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 1.5px;
+  height: 80px;
+  background: linear-gradient(180deg, var(--amber-bright), var(--amber));
+  transform-origin: 50% 100%;
+  box-shadow: 0 0 6px var(--amber-glow);
+  transition: transform 120ms ease-out;
+}
+.s-meter .needle::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--brass-hi);
+  border-radius: 50%;
+  box-shadow: 0 0 3px var(--amber);
+}
+.s-meter .scale {
+  position: absolute;
+  bottom: 4px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--paper-dim);
+}
+.s-meter .pivot {
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #382816, #110b06);
+  border: 1px solid var(--bakelite-rim);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+/* === CHANNEL PANEL: callsign input, link status, tuner === */
+
+.callsign-input {
+  width: 100%;
+  background: linear-gradient(180deg, #0d0a06 0%, #1a110a 100%);
+  border: 1px solid var(--panel-edge);
+  color: var(--amber-bright);
+  font-family: var(--font-crt);
+  font-size: 20px;
+  letter-spacing: 0.18em;
+  padding: 6px 10px;
+  border-radius: 2px;
+  text-shadow: 0 0 6px var(--amber-glow);
+  text-align: center;
+  outline: none;
+  box-shadow:
+    inset 0 0 14px rgba(255,140,0,0.12),
+    inset 0 1px 0 rgba(0,0,0,0.5);
+}
+.callsign-input:focus {
+  border-color: var(--amber);
+}
+
+.link-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-family: var(--font-stencil);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  color: var(--paper-dim);
+}
+.link-status .lamp { display: inline-block; }
+.link-status .lamp .bulb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: block;
+  background: #1a0f08;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.04),
+    inset 0 -1px 2px rgba(0,0,0,0.8),
+    0 0 0 1px #2a1c10;
+}
+.link-status .lamp.red .bulb {
+  background: radial-gradient(circle at 35% 30%, #ffb4ad, #d8362a 50%, #4a0d09 100%);
+  box-shadow: 0 0 8px #ff4d3b;
+}
+.link-status .link-text {
+  color: var(--paper-faint);
+}
+
+/* Tuning knob */
+.tuner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.tuner-readout {
+  text-align: center;
+  font-family: var(--font-crt);
+  font-size: 30px;
+  color: var(--amber-bright);
+  text-shadow: 0 0 6px var(--amber), 0 0 14px var(--amber-glow);
+  background:
+    linear-gradient(180deg, #0d0a06 0%, #1a110a 100%);
+  border: 1px solid var(--panel-edge);
+  padding: 6px 10px;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 22px rgba(255,140,0,0.16),
+    inset 0 1px 0 rgba(0,0,0,0.5);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+.tuner-readout .mhz {
+  color: var(--paper);
+}
+.tuner-readout .dot-sep {
+  margin: 0 2px;
+  color: var(--paper-faint);
+  animation: blink 1.3s steps(2) infinite;
+}
+.tuner-readout .khz {
+  color: var(--amber-bright);
+}
+.tuner-readout .unit {
+  font-family: var(--font-stencil);
+  font-size: 10px;
+  color: var(--paper-dim);
+  letter-spacing: 0.32em;
+  margin-left: 8px;
+  text-shadow: none;
+}
+.tuner-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.tuner-knob {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 28%, #5a3e22, #2b1c10 70%, #0a0604 100%);
+  border: 1px solid #4d3520;
+  box-shadow:
+    inset 0 2px 2px rgba(255,200,120,0.18),
+    inset 0 -3px 6px rgba(0,0,0,0.8),
+    0 2px 6px rgba(0,0,0,0.6);
+  cursor: ns-resize;
+  user-select: none;
+  -webkit-user-select: none;
+  flex-shrink: 0;
+}
+.tuner-knob-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transition: transform 60ms linear;
+}
+.tuner-knob-marker {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 3px;
+  height: 22px;
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass));
+  border-radius: 1.5px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 6px var(--amber-glow);
+}
+.tuner-knob-ridges {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255,200,120,0.08) 0deg,
+    transparent 6deg,
+    transparent 12deg
+  );
+  pointer-events: none;
+}
+.freq-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #2a1c10 0%, #0c0805 100%);
+  border: 1px solid var(--panel-edge);
+  color: var(--paper-faint);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0;
+  line-height: 1;
+}
+.freq-step:hover {
+  border-color: var(--amber);
+  color: var(--amber-bright);
+}
+.freq-step:active {
+  background: linear-gradient(180deg, #1a0f08 0%, #0a0604 100%);
+}
+.tuner-hint {
+  text-align: center;
+  font-family: var(--font-stencil);
+  font-size: 8.5px;
+  letter-spacing: 0.26em;
+  color: var(--paper-dim);
+}
+
+@media (max-width: 1080px) {
+  .main { grid-template-columns: 220px 1fr 220px; }
+  .node.is-dot { width: 32px; height: 32px; font-size: 12px; }
+  .node.is-dash { width: 46px; height: 26px; font-size: 12px; }
 }
 
 /* === CENTER — MORSE TREE === */

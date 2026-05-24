@@ -3,6 +3,7 @@ import { useMorseSimulator } from './hooks/useMorseSimulator.js'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
 import MessageLog from './components/MessageLog.jsx'
+import ChannelPanel from './components/ChannelPanel.jsx'
 import SignalStream from './components/SignalStream.jsx'
 import {
   loadCallsign, saveCallsign,
@@ -13,18 +14,15 @@ export default function App() {
   const [callsign, setCallsignState] = useState(() => loadCallsign())
   const [frequency, setFrequencyState] = useState(() => loadFrequency())
 
-  // eslint-disable-next-line no-unused-vars
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
     setCallsignState(clean)
   }
-  // eslint-disable-next-line no-unused-vars
   const setFrequency = (v) => {
     saveFrequency(v)
     setFrequencyState(v)
   }
 
-  // Local tape — each committed letter scrolls across the stream
   const [streamItems, setStreamItems] = useState([])
   const streamIdRef = useRef(0)
 
@@ -42,7 +40,6 @@ export default function App() {
 
   const wpm = Math.round(1200 / sim.dotMs)
 
-  // Spacebar = global telegraph key
   useEffect(() => {
     const onDown = (e) => {
       if (e.code !== 'Space' || e.repeat) return
@@ -91,6 +88,14 @@ export default function App() {
           <MorseTree
             currentCode={sim.currentCode}
             activeSign={sim.activeSign}
+          />
+
+          <ChannelPanel
+            frequency={frequency}
+            onFrequencyChange={setFrequency}
+            callsign={callsign}
+            onCallsignChange={setCallsign}
+            signalStrength={sim.signalStrength}
           />
         </main>
 
