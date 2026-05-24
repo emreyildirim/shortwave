@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMorseSimulator } from './hooks/useMorseSimulator.js'
+import { useRadioChannel } from './hooks/useRadioChannel.js'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
 import MessageLog from './components/MessageLog.jsx'
@@ -35,23 +36,19 @@ export default function App() {
     saveNotepad(v)
   }
 
-  const [streamItems, setStreamItems] = useState([])
-  const streamIdRef = useRef(0)
+  // Channel layer first so we can pass its callbacks into the simulator
+  const channel = useRadioChannel({ frequency, callsign })
 
   const sim = useMorseSimulator({
     wpm: 14,
-    onLetterCommit: (letter, code) => {
-      setStreamItems((s) => [...s.slice(-80), {
-        id: ++streamIdRef.current,
-        code,
-        letter,
-        tCreated: performance.now(),
-      }])
-    },
+    onKeyDown: () => channel.keyDown(),
+    onKeyUp: (sign, durationMs) => channel.keyUp(sign, durationMs),
+    onLetterCommit: (letter, code) => channel.sendLetter(letter, code),
   })
 
   const wpm = Math.round(1200 / sim.dotMs)
 
+  // Spacebar = global telegraph key
   useEffect(() => {
     const onDown = (e) => {
       if (e.code !== 'Space' || e.repeat) return
@@ -78,6 +75,13 @@ export default function App() {
     }
   }, [sim])
 
+  // merge local + remote logs sorted by time for the message log
+  const mergedLog = useMemo(() => {
+    const local = sim.decodedLog.map((e) => ({ ...e, kind: 'tx' }))
+    const remote = channel.remoteLog.map((e) => ({ ...e, kind: 'rx' }))
+    return [...local, ...remote].sort((a, b) => a.t - b.t).slice(-200)
+  }, [sim.decodedLog, channel.remoteLog])
+
   return (
     <div className="shell">
       <div className="stage">
@@ -86,15 +90,17 @@ export default function App() {
           isKeying={sim.isKeying}
           frequency={frequency}
           callsign={callsign}
-          connected={false}
-          remoteKeying={false}
+          connected={channel.isConnected}
+          remoteKeying={channel.remote.isKeying}
         />
 
         <main className="main">
           <MessageLog
-            log={sim.decodedLog}
+            log={mergedLog}
             currentCode={sim.currentCode}
             isKeying={sim.isKeying}
+            remoteCode={channel.remote.currentCode}
+            remoteCallsign={channel.remote.callsign}
             earCopy={earCopy}
             notepad={notepad}
             onNotepadChange={setNotepad}
@@ -103,24 +109,31 @@ export default function App() {
           <MorseTree
             currentCode={sim.currentCode}
             activeSign={sim.activeSign}
+            remoteCode={channel.remote.currentCode}
+            remoteActiveSign={channel.remote.activeSign}
+            remoteCallsign={channel.remote.callsign}
             frozen={earCopy}
           />
 
           <ChannelPanel
             frequency={frequency}
             onFrequencyChange={setFrequency}
+            status={channel.status}
+            peers={channel.peers}
             callsign={callsign}
             onCallsignChange={setCallsign}
             signalStrength={sim.signalStrength}
+            isKeying={sim.isKeying}
+            remote={channel.remote}
             earCopy={earCopy}
             onEarCopyChange={setEarCopy}
           />
         </main>
 
         <SignalStream
-          items={streamItems}
-          activeSign={sim.activeSign}
-          isKeying={sim.isKeying}
+          items={channel.streamItems}
+          activeSign={channel.remote.activeSign}
+          isKeying={channel.remote.isKeying}
           wpm={wpm}
           onKeyDown={sim.beginKey}
           onKeyUp={sim.endKey}

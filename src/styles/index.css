@@ -27,6 +27,12 @@
   --signal-red:    #c93a2a;
   --signal-green:  #7aa05a;
 
+  /* peer / RX phosphor (classic green CRT) */
+  --rx-green:        #7be08a;
+  --rx-green-bright: #b4f5b8;
+  --rx-glow:         rgba(123,224,138,0.55);
+  --rx-faint:        rgba(123,224,138,0.18);
+
   --paper:         #d9c79a;
   --paper-faint:   rgba(217,199,154,0.55);
   --paper-dim:     rgba(217,199,154,0.32);
@@ -636,6 +642,17 @@ body::after {
   background: radial-gradient(circle at 35% 30%, #ffb4ad, #d8362a 50%, #4a0d09 100%);
   box-shadow: 0 0 8px #ff4d3b;
 }
+.link-status .lamp.green .bulb {
+  background: radial-gradient(circle at 35% 30%, #d4f0c0, #7aa05a 60%, #314026 100%);
+  box-shadow: 0 0 8px #a0d080;
+}
+.link-status .lamp.amber .bulb {
+  background: radial-gradient(circle at 35% 30%, #ffe399, #ffae00 50%, #7a3a00 100%);
+  box-shadow: 0 0 8px var(--amber);
+}
+.link-status .lamp.blink .bulb {
+  animation: blink 0.9s steps(2) infinite;
+}
 .link-status .link-text {
   color: var(--paper-faint);
 }
@@ -1041,7 +1058,7 @@ body::after {
       rgba(217,199,154,0.025) 0 1px,
       transparent 1px 60px
     ),
-    radial-gradient(ellipse at 100% 50%, var(--amber-faint), transparent 70%);
+    radial-gradient(ellipse at 100% 50%, var(--rx-faint), transparent 70%);
 }
 
 .stream-track::after {
@@ -1049,14 +1066,15 @@ body::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, #050806 0%, transparent 8%, transparent 92%, rgba(255,176,0,0.05) 100%);
+  background: linear-gradient(90deg, #050806 0%, transparent 8%, transparent 92%, rgba(123,224,138,0.05) 100%);
   pointer-events: none;
   z-index: 2;
 }
 
 /* Each tape item is absolutely placed and its `right` offset is updated
    every animation frame, so the whole tape scrolls smoothly from right
-   to left even when no new signals arrive. */
+   to left even when no new signals arrive. Items are RX (incoming) so
+   they wear the green-phosphor palette. */
 .stream-item {
   position: absolute;
   top: 50%;
@@ -1066,9 +1084,9 @@ body::after {
   gap: 6px;
   font-family: var(--font-crt);
   font-size: 30px;
-  color: var(--amber);
+  color: var(--rx-green);
   letter-spacing: 0.16em;
-  text-shadow: 0 0 6px var(--amber-glow);
+  text-shadow: 0 0 6px var(--rx-glow);
   white-space: nowrap;
   animation: tape-fade-in 260ms ease-out;
   will-change: right, opacity;
@@ -1109,35 +1127,35 @@ body::after {
   z-index: 3;
 }
 
-/* small status keyer at the right edge of the stream */
+/* small status keyer at the right edge of the stream — RX mirror */
 .keyer.mini {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #1f1208, #050806);
-  border: 1px solid #3a2818;
+  background: radial-gradient(circle at 30% 30%, #0d1f10, #050806);
+  border: 1px solid #1a3a20;
   display: grid;
   place-items: center;
   transition: all 80ms ease-out;
   flex-shrink: 0;
 }
 .keyer.mini.on {
-  background: radial-gradient(circle at 30% 30%, #fff4cf, #ffb000 55%, #5a3a00 100%);
-  border-color: var(--amber-bright);
+  background: radial-gradient(circle at 30% 30%, #d8ffdd, #7be08a 55%, #2a5a36 100%);
+  border-color: #b4f5b8;
   box-shadow:
-    0 0 12px var(--amber),
-    0 0 26px var(--amber-glow);
+    0 0 12px var(--rx-green-bright),
+    0 0 26px var(--rx-glow);
 }
 .keyer.mini .sign {
   font-family: var(--font-crt);
   font-size: 18px;
-  color: var(--amber-bright);
-  text-shadow: 0 0 4px var(--amber-glow);
+  color: var(--rx-green-bright);
+  text-shadow: 0 0 4px var(--rx-glow);
   visibility: hidden;
   line-height: 1;
 }
 .keyer.mini.on .sign {
-  color: #1a0d04;
+  color: #061508;
   text-shadow: none;
   visibility: visible;
 }
@@ -1536,6 +1554,146 @@ body::after {
 .np-clear:hover {
   border-color: var(--amber);
   color: var(--amber-bright);
+}
+
+/* === RX (remote operator) phosphor styling === */
+
+/* remote signal disk variant */
+.signal-disk.remote {
+  background: radial-gradient(circle at 35% 30%,
+    rgba(220,255,224,0.85) 0%,
+    rgba(123,224,138,0.55) 45%,
+    rgba(35,94,46,0.0) 100%);
+  box-shadow:
+    0 0 14px var(--rx-glow),
+    0 0 28px rgba(123,224,138,0.35);
+}
+
+/* nodes touched by remote path */
+.node.on-rx-path:not(.on-path) {
+  border-color: var(--rx-green);
+  color: var(--rx-green-bright);
+  box-shadow:
+    inset 0 0 6px rgba(123,224,138,0.20),
+    0 0 12px var(--rx-faint),
+    0 2px 4px rgba(0,0,0,0.5);
+}
+.node.is-remote-current {
+  color: #eaffea;
+  background: linear-gradient(180deg, #1f4424 0%, #0c1f10 100%);
+  border-color: var(--rx-green-bright);
+  text-shadow: 0 0 4px #0c1f10, 0 0 10px var(--rx-green);
+  box-shadow:
+    0 0 0 1px var(--rx-green),
+    0 0 16px var(--rx-glow),
+    0 0 32px rgba(123,224,138,0.45),
+    inset 0 0 8px rgba(180,245,184,0.4);
+  animation: pulse-rx 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-rx {
+  0%, 100% { box-shadow: 0 0 0 1px var(--rx-green), 0 0 14px var(--rx-glow), 0 0 28px rgba(123,224,138,0.35); }
+  50%      { box-shadow: 0 0 0 1px var(--rx-green-bright), 0 0 20px var(--rx-green), 0 0 40px rgba(123,224,138,0.55); }
+}
+
+/* tree-meta RX code display */
+.tree-meta .rx-tag {
+  font-family: var(--font-stencil);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--rx-green);
+  border: 1px solid var(--rx-green);
+  padding: 0 4px;
+  border-radius: 2px;
+  margin-left: 14px;
+  background: rgba(123,224,138,0.06);
+}
+.tree-meta .code-now.remote {
+  color: var(--rx-green-bright);
+  text-shadow: 0 0 6px var(--rx-glow);
+}
+
+.now-letter.is-remote {
+  color: var(--rx-green-bright);
+  text-shadow:
+    0 0 12px var(--rx-green),
+    0 0 32px var(--rx-glow);
+}
+
+/* RX log entries */
+.log-entry.is-rx .tag {
+  color: var(--rx-green);
+  border-color: var(--rx-green);
+  background: rgba(123,224,138,0.08);
+  text-shadow: 0 0 4px var(--rx-glow);
+}
+.log-entry.is-rx .msg .ch {
+  color: var(--rx-green-bright);
+  text-shadow: 0 0 6px var(--rx-green);
+}
+.log-entry .from {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--rx-green);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+/* RX peer list */
+.peer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.peer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--paper);
+  border-bottom: 1px dotted rgba(217,199,154,0.12);
+}
+.peer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--rx-green);
+  box-shadow: 0 0 6px var(--rx-glow);
+  flex-shrink: 0;
+}
+.peer-dot.pulse {
+  animation: pulse-rx-dot 0.6s ease-in-out infinite alternate;
+}
+@keyframes pulse-rx-dot {
+  from { transform: scale(1); box-shadow: 0 0 6px var(--rx-glow); }
+  to   { transform: scale(1.3); box-shadow: 0 0 14px var(--rx-green-bright); }
+}
+.peer-row.is-active .peer-name {
+  color: var(--rx-green-bright);
+  text-shadow: 0 0 6px var(--rx-glow);
+}
+.peer-name {
+  flex: 1;
+  letter-spacing: 0.1em;
+}
+.peer-tag {
+  font-family: var(--font-stencil);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--rx-green);
+  border: 1px solid var(--rx-green);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+/* np-rx for notepad header during RX */
+.np-rx {
+  color: var(--rx-green);
+  text-shadow: 0 0 4px var(--rx-glow);
+  font-family: var(--font-mono);
+  letter-spacing: 0.16em;
 }
 
 .muted { color: var(--paper-dim); }

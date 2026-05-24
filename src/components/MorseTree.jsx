@@ -20,25 +20,34 @@ const buildPathSet = (code) => {
 }
 
 export default function MorseTree({
-  currentCode,
+  currentCode,        // local operator
   activeSign,
+  remoteCode = '',    // most recent peer
+  remoteActiveSign = null,
+  remoteCallsign = '',
   frozen = false,     // ear-copy mode: chart sits inert
 }) {
   // When frozen, the tree is just a static chart on the wall — no path
   // glow, no current-letter halo, no traveling signal. Operator decodes
   // by ear into the notepad.
   const effectiveLocal = frozen ? '' : currentCode
+  const effectiveRemote = frozen ? '' : remoteCode
 
   const localPath = useMemo(() => buildPathSet(effectiveLocal), [effectiveLocal])
+  const remotePath = useMemo(() => buildPathSet(effectiveRemote), [effectiveRemote])
 
   const lastLocalPos = useRef(ROOT_POS)
+  const lastRemotePos = useRef(ROOT_POS)
   const localSignalPos = resolvePos(effectiveLocal, lastLocalPos)
+  const remoteSignalPos = resolvePos(effectiveRemote, lastRemotePos)
 
   const connections = NODES.map((n) => ({
     from: n.parentPos,
     to: n.pos,
     code: n.code,
+    parentCode: n.parentCode,
     onLocalPath: localPath.has(n.code),
+    onRemotePath: remotePath.has(n.code),
     sign: n.lastSign,
   }))
 
@@ -56,6 +65,12 @@ export default function MorseTree({
         <div className="tree-meta">
           <span>BUFFER</span>
           <span className="code-now">{effectiveLocal || '—'}</span>
+          {effectiveRemote && (
+            <>
+              <span className="rx-tag">RX</span>
+              <span className="code-now remote">{effectiveRemote}</span>
+            </>
+          )}
         </div>
 
         <svg className="tree-svg" preserveAspectRatio="none" viewBox="0 0 100 100">
@@ -69,6 +84,7 @@ export default function MorseTree({
             </filter>
           </defs>
 
+          {/* Dim base connections */}
           {connections.map((c) => (
             <line
               key={`dim-${c.code}`}
@@ -78,11 +94,27 @@ export default function MorseTree({
               y2={c.to.y}
               stroke="#c89858"
               strokeWidth="2"
-              strokeOpacity={c.onLocalPath ? 0.22 : 0.95}
+              strokeOpacity={(c.onLocalPath || c.onRemotePath) ? 0.22 : 0.95}
               vectorEffect="non-scaling-stroke"
               strokeLinecap="round"
             />
           ))}
+          {/* Remote (green phosphor) hot path, drawn under local so local wins on overlap */}
+          {connections.filter(c => c.onRemotePath).map((c) => (
+            <line
+              key={`rx-${c.code}`}
+              x1={c.from.x}
+              y1={c.from.y}
+              x2={c.to.x}
+              y2={c.to.y}
+              stroke="#7be08a"
+              strokeWidth="2.6"
+              vectorEffect="non-scaling-stroke"
+              strokeLinecap="round"
+              filter="url(#lineGlow)"
+            />
+          ))}
+          {/* Local (amber) hot path */}
           {connections.filter(c => c.onLocalPath).map((c) => (
             <line
               key={`tx-${c.code}`}
@@ -99,21 +131,27 @@ export default function MorseTree({
           ))}
         </svg>
 
+        {/* Root antenna */}
         <div
-          className={`antenna ${effectiveLocal ? 'on' : ''}`}
+          className={`antenna ${effectiveLocal || effectiveRemote ? 'on' : ''}`}
           style={{ left: `${ROOT_POS.x}%`, top: `${ROOT_POS.y}%` }}
         >
-          <Antenna active={!!effectiveLocal} />
+          <Antenna active={!!(effectiveLocal || effectiveRemote)} />
         </div>
 
+        {/* Letter nodes */}
         {NODES.map((n) => {
           if (!n.letter) return null
           const isCurrent = !!effectiveLocal && n.code === effectiveLocal
+          const isRemoteCurrent = !!effectiveRemote && n.code === effectiveRemote
           const onLocal = localPath.has(n.code)
+          const onRemote = remotePath.has(n.code)
           const shape = n.lastSign === '-' ? 'is-dash' : 'is-dot'
           const classes = ['node', shape]
           if (onLocal) classes.push('on-path')
+          if (onRemote) classes.push('on-rx-path')
           if (isCurrent) classes.push('is-current')
+          if (isRemoteCurrent && !isCurrent) classes.push('is-remote-current')
           return (
             <div
               key={n.code}
@@ -126,11 +164,20 @@ export default function MorseTree({
           )
         })}
 
+        {/* Local traveling signal */}
         <div
           className={`signal-disk ${effectiveLocal ? 'is-on' : ''}`}
           style={{ left: `${localSignalPos.x}%`, top: `${localSignalPos.y}%` }}
         />
 
+        {/* Remote (green) traveling signal */}
+        <div
+          className={`signal-disk remote ${effectiveRemote ? 'is-on' : ''}`}
+          style={{ left: `${remoteSignalPos.x}%`, top: `${remoteSignalPos.y}%` }}
+        />
+
+        {/* Current letter at bottom — shows local primarily, remote when no local.
+            Frozen in ear-copy mode so the operator must decode by ear. */}
         {(() => {
           if (frozen) {
             return (
@@ -140,13 +187,17 @@ export default function MorseTree({
               </div>
             )
           }
-          const letter = FROM_MORSE[effectiveLocal]
+          const showRemote = !effectiveLocal && effectiveRemote
+          const code = showRemote ? effectiveRemote : effectiveLocal
+          const letter = FROM_MORSE[code]
           return (
-            <div className={`now-letter ${effectiveLocal && letter ? '' : 'empty'}`}>
-              {letter || (effectiveLocal ? '?' : '·')}
+            <div className={`now-letter ${code && letter ? '' : 'empty'} ${showRemote ? 'is-remote' : ''}`}>
+              {letter || (code ? '?' : '·')}
               <span className="lbl">
-                {effectiveLocal
-                  ? (letter ? 'DECODED' : 'INCOMPLETE')
+                {code
+                  ? (letter
+                      ? (showRemote ? `RX · ${remoteCallsign || 'PEER'}` : 'DECODED')
+                      : 'INCOMPLETE')
                   : 'AWAITING SIGNAL'}
               </span>
             </div>
