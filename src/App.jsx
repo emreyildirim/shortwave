@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useMorseSimulator } from './hooks/useMorseSimulator.js'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
+import MessageLog from './components/MessageLog.jsx'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
@@ -21,15 +23,41 @@ export default function App() {
     setFrequencyState(v)
   }
 
-  const [currentCode] = useState('')
-  const activeSign = null
+  const sim = useMorseSimulator({ wpm: 14 })
+
+  // Spacebar = global telegraph key
+  useEffect(() => {
+    const onDown = (e) => {
+      if (e.code !== 'Space' || e.repeat) return
+      const t = e.target
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+      e.preventDefault()
+      sim.beginKey()
+    }
+    const onUp = (e) => {
+      if (e.code !== 'Space') return
+      const t = e.target
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+      e.preventDefault()
+      sim.endKey()
+    }
+    const onBlur = () => sim.endKey()
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', onUp)
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('keydown', onDown)
+      window.removeEventListener('keyup', onUp)
+      window.removeEventListener('blur', onBlur)
+    }
+  }, [sim])
 
   return (
     <div className="shell">
       <div className="stage">
         <RadioPanel
-          activeSign={activeSign}
-          isKeying={false}
+          activeSign={sim.activeSign}
+          isKeying={sim.isKeying}
           frequency={frequency}
           callsign={callsign}
           connected={false}
@@ -37,7 +65,16 @@ export default function App() {
         />
 
         <main className="main">
-          <MorseTree currentCode={currentCode} activeSign={activeSign} />
+          <MessageLog
+            log={sim.decodedLog}
+            currentCode={sim.currentCode}
+            isKeying={sim.isKeying}
+          />
+
+          <MorseTree
+            currentCode={sim.currentCode}
+            activeSign={sim.activeSign}
+          />
         </main>
       </div>
     </div>
