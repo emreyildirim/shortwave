@@ -1,0 +1,173 @@
+/* === SHORTWAVE — WWII RADIO ROOM === */
+/* Amber phosphor over bakelite. Brass and oxidized brass. Cigarette smoke. */
+
+:root {
+  /* core palette */
+  --ink:           #08070a;
+  --ink-warm:      #110d0a;
+  --panel:         #1a130d;
+  --panel-light:   #241a11;
+  --panel-edge:    #3b2a1a;
+
+  --bakelite:      #181210;
+  --bakelite-hi:   #28201c;
+  --bakelite-rim:  #44342a;
+
+  --brass:         #b08840;
+  --brass-hi:      #e7c067;
+  --brass-shadow:  #6b4f23;
+  --oxidized:      #7a8369;
+
+  /* phosphor — the signal color */
+  --amber:         #ffb000;
+  --amber-bright:  #ffd34d;
+  --amber-glow:    rgba(255,176,0,0.55);
+  --amber-faint:   rgba(255,176,0,0.18);
+
+  --signal-red:    #c93a2a;
+  --signal-green:  #7aa05a;
+
+  --paper:         #d9c79a;
+  --paper-faint:   rgba(217,199,154,0.55);
+  --paper-dim:     rgba(217,199,154,0.32);
+  --grid:          rgba(217,199,154,0.07);
+
+  --font-display:  'Cormorant Unicase', serif;
+  --font-mono:     'JetBrains Mono', ui-monospace, monospace;
+  --font-crt:      'VT323', monospace;
+  --font-stencil:  'Special Elite', serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* === GLOBAL AMBIENT TEXTURES === */
+
+/* grain noise overlay everywhere */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.7  0 0 0 0 0.3  0 0 0 1 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+}
+
+/* horizontal scanlines, very subtle */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0)   0px,
+    rgba(0,0,0,0)   2px,
+    rgba(0,0,0,0.18) 3px,
+    rgba(0,0,0,0)   4px
+  );
+  opacity: 0.6;
+  mix-blend-mode: multiply;
+}
+
+/* === SHELL === */
+
+.shell {
+  height: 100vh;
+  width: 100vw;
+  padding: 14px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  background:
+    radial-gradient(ellipse at 50% 40%, #221813 0%, #0c0907 70%, #050302 100%),
+    var(--ink-warm);
+}
+
+/* corner vignette */
+.shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* a faint glow from the receiver dial */
+.shell::after {
+  content: '';
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  width: 50vw;
+  height: 40vh;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, var(--amber-faint), transparent 65%);
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.stage {
+  position: relative;
+  z-index: 2;
+  display: contents;
+}
+
+/* boot placeholder — shown until panels exist */
+.boot {
+  grid-row: 1 / -1;
+  align-self: center;
+  justify-self: center;
+  text-align: center;
+  padding: 40px;
+  border: 1px dashed var(--panel-edge);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1a130c 0%, #100a06 100%);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.boot-name {
+  font-family: var(--font-display);
+  font-size: 42px;
+  letter-spacing: 0.36em;
+  color: var(--amber-bright);
+  text-shadow: 0 0 12px var(--amber-glow);
+}
+.boot-sub {
+  margin-top: 12px;
+  font-family: var(--font-stencil);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+}
+
+.muted { color: var(--paper-dim); }
+.brass { color: var(--brass-hi); }
+.small { font-size: 11px; }
