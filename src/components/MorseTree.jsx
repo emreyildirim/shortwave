@@ -19,11 +19,20 @@ const buildPathSet = (code) => {
   return out
 }
 
-export default function MorseTree({ currentCode, activeSign }) {
-  const localPath = useMemo(() => buildPathSet(currentCode), [currentCode])
+export default function MorseTree({
+  currentCode,
+  activeSign,
+  frozen = false,     // ear-copy mode: chart sits inert
+}) {
+  // When frozen, the tree is just a static chart on the wall — no path
+  // glow, no current-letter halo, no traveling signal. Operator decodes
+  // by ear into the notepad.
+  const effectiveLocal = frozen ? '' : currentCode
+
+  const localPath = useMemo(() => buildPathSet(effectiveLocal), [effectiveLocal])
 
   const lastLocalPos = useRef(ROOT_POS)
-  const localSignalPos = resolvePos(currentCode, lastLocalPos)
+  const localSignalPos = resolvePos(effectiveLocal, lastLocalPos)
 
   const connections = NODES.map((n) => ({
     from: n.parentPos,
@@ -32,8 +41,6 @@ export default function MorseTree({ currentCode, activeSign }) {
     onLocalPath: localPath.has(n.code),
     sign: n.lastSign,
   }))
-
-  const letter = FROM_MORSE[currentCode]
 
   return (
     <section className="col tree-col">
@@ -48,7 +55,7 @@ export default function MorseTree({ currentCode, activeSign }) {
         </div>
         <div className="tree-meta">
           <span>BUFFER</span>
-          <span className="code-now">{currentCode || '—'}</span>
+          <span className="code-now">{effectiveLocal || '—'}</span>
         </div>
 
         <svg className="tree-svg" preserveAspectRatio="none" viewBox="0 0 100 100">
@@ -62,7 +69,6 @@ export default function MorseTree({ currentCode, activeSign }) {
             </filter>
           </defs>
 
-          {/* Dim base connections */}
           {connections.map((c) => (
             <line
               key={`dim-${c.code}`}
@@ -77,7 +83,6 @@ export default function MorseTree({ currentCode, activeSign }) {
               strokeLinecap="round"
             />
           ))}
-          {/* Local (amber) hot path */}
           {connections.filter(c => c.onLocalPath).map((c) => (
             <line
               key={`tx-${c.code}`}
@@ -94,18 +99,16 @@ export default function MorseTree({ currentCode, activeSign }) {
           ))}
         </svg>
 
-        {/* Root antenna */}
         <div
-          className={`antenna ${currentCode ? 'on' : ''}`}
+          className={`antenna ${effectiveLocal ? 'on' : ''}`}
           style={{ left: `${ROOT_POS.x}%`, top: `${ROOT_POS.y}%` }}
         >
-          <Antenna active={!!currentCode} />
+          <Antenna active={!!effectiveLocal} />
         </div>
 
-        {/* Letter nodes */}
         {NODES.map((n) => {
           if (!n.letter) return null
-          const isCurrent = !!currentCode && n.code === currentCode
+          const isCurrent = !!effectiveLocal && n.code === effectiveLocal
           const onLocal = localPath.has(n.code)
           const shape = n.lastSign === '-' ? 'is-dash' : 'is-dot'
           const classes = ['node', shape]
@@ -123,21 +126,32 @@ export default function MorseTree({ currentCode, activeSign }) {
           )
         })}
 
-        {/* Local traveling signal */}
         <div
-          className={`signal-disk ${currentCode ? 'is-on' : ''}`}
+          className={`signal-disk ${effectiveLocal ? 'is-on' : ''}`}
           style={{ left: `${localSignalPos.x}%`, top: `${localSignalPos.y}%` }}
         />
 
-        {/* Current letter at bottom */}
-        <div className={`now-letter ${currentCode && letter ? '' : 'empty'}`}>
-          {letter || (currentCode ? '?' : '·')}
-          <span className="lbl">
-            {currentCode
-              ? (letter ? 'DECODED' : 'INCOMPLETE')
-              : 'AWAITING SIGNAL'}
-          </span>
-        </div>
+        {(() => {
+          if (frozen) {
+            return (
+              <div className="now-letter empty">
+                ·
+                <span className="lbl">EAR-COPY · DECODER OFFLINE</span>
+              </div>
+            )
+          }
+          const letter = FROM_MORSE[effectiveLocal]
+          return (
+            <div className={`now-letter ${effectiveLocal && letter ? '' : 'empty'}`}>
+              {letter || (effectiveLocal ? '?' : '·')}
+              <span className="lbl">
+                {effectiveLocal
+                  ? (letter ? 'DECODED' : 'INCOMPLETE')
+                  : 'AWAITING SIGNAL'}
+              </span>
+            </div>
+          )
+        })()}
       </div>
     </section>
   )

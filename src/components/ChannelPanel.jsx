@@ -1,4 +1,5 @@
 import TuningKnob from './TuningKnob.jsx'
+import ModeSwitch from './ModeSwitch.jsx'
 
 export default function ChannelPanel({
   frequency,
@@ -6,6 +7,8 @@ export default function ChannelPanel({
   callsign,
   onCallsignChange,
   signalStrength,
+  earCopy,
+  onEarCopyChange,
 }) {
   const angle = -55 + signalStrength * 110
 
@@ -13,6 +16,10 @@ export default function ChannelPanel({
     <aside className="col">
       <div className="col-label">CHANNEL <span className="meta">PANEL B</span></div>
       <div className="instr-stack">
+
+        <div className="gauge mode-gauge">
+          <ModeSwitch earCopy={earCopy} onChange={onEarCopyChange} />
+        </div>
 
         <div className="gauge">
           <div className="gauge-label">Operator</div>

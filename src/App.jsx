@@ -8,11 +8,15 @@ import SignalStream from './components/SignalStream.jsx'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
+  loadEarCopy, saveEarCopy,
+  loadNotepad, saveNotepad,
 } from './lib/identity.js'
 
 export default function App() {
   const [callsign, setCallsignState] = useState(() => loadCallsign())
   const [frequency, setFrequencyState] = useState(() => loadFrequency())
+  const [earCopy, setEarCopyState] = useState(() => loadEarCopy())
+  const [notepad, setNotepadState] = useState(() => loadNotepad())
 
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
@@ -21,6 +25,14 @@ export default function App() {
   const setFrequency = (v) => {
     saveFrequency(v)
     setFrequencyState(v)
+  }
+  const setEarCopy = (v) => {
+    saveEarCopy(v)
+    setEarCopyState(v)
+  }
+  const setNotepad = (v) => {
+    setNotepadState(v)
+    saveNotepad(v)
   }
 
   const [streamItems, setStreamItems] = useState([])
@@ -83,11 +95,15 @@ export default function App() {
             log={sim.decodedLog}
             currentCode={sim.currentCode}
             isKeying={sim.isKeying}
+            earCopy={earCopy}
+            notepad={notepad}
+            onNotepadChange={setNotepad}
           />
 
           <MorseTree
             currentCode={sim.currentCode}
             activeSign={sim.activeSign}
+            frozen={earCopy}
           />
 
           <ChannelPanel
@@ -96,6 +112,8 @@ export default function App() {
             callsign={callsign}
             onCallsignChange={setCallsign}
             signalStrength={sim.signalStrength}
+            earCopy={earCopy}
+            onEarCopyChange={setEarCopy}
           />
         </main>
 

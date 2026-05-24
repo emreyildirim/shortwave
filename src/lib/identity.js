@@ -50,3 +50,20 @@ export function loadFrequency() {
 export function saveFrequency(freqKHz) {
   try { localStorage.setItem(FREQ_KEY, String(Math.round(freqKHz))) } catch {}
 }
+
+const EAR_COPY_KEY = 'shortwave.earCopy'
+const NOTEPAD_KEY = 'shortwave.notepad'
+
+export function loadEarCopy() {
+  try { return localStorage.getItem(EAR_COPY_KEY) === '1' } catch { return false }
+}
+export function saveEarCopy(on) {
+  try { localStorage.setItem(EAR_COPY_KEY, on ? '1' : '0') } catch {}
+}
+
+export function loadNotepad() {
+  try { return localStorage.getItem(NOTEPAD_KEY) || '' } catch { return '' }
+}
+export function saveNotepad(text) {
+  try { localStorage.setItem(NOTEPAD_KEY, String(text || '').slice(0, 20000)) } catch {}
+}
