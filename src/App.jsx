@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMorseSimulator } from './hooks/useMorseSimulator.js'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
 import MessageLog from './components/MessageLog.jsx'
+import SignalStream from './components/SignalStream.jsx'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
@@ -23,7 +24,23 @@ export default function App() {
     setFrequencyState(v)
   }
 
-  const sim = useMorseSimulator({ wpm: 14 })
+  // Local tape — each committed letter scrolls across the stream
+  const [streamItems, setStreamItems] = useState([])
+  const streamIdRef = useRef(0)
+
+  const sim = useMorseSimulator({
+    wpm: 14,
+    onLetterCommit: (letter, code) => {
+      setStreamItems((s) => [...s.slice(-80), {
+        id: ++streamIdRef.current,
+        code,
+        letter,
+        tCreated: performance.now(),
+      }])
+    },
+  })
+
+  const wpm = Math.round(1200 / sim.dotMs)
 
   // Spacebar = global telegraph key
   useEffect(() => {
@@ -76,6 +93,15 @@ export default function App() {
             activeSign={sim.activeSign}
           />
         </main>
+
+        <SignalStream
+          items={streamItems}
+          activeSign={sim.activeSign}
+          isKeying={sim.isKeying}
+          wpm={wpm}
+          onKeyDown={sim.beginKey}
+          onKeyUp={sim.endKey}
+        />
       </div>
     </div>
   )

@@ -707,6 +707,343 @@ body::after {
   margin-top: 4px;
 }
 
+/* === BOTTOM SIGNAL STREAM === */
+
+.signal-stream {
+  background:
+    linear-gradient(180deg, #0a0805 0%, #1a120a 50%, #0a0604 100%);
+  border: 1px solid var(--panel-edge);
+  border-radius: 4px;
+  padding: 0;
+  height: 124px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: stretch;
+  position: relative;
+  z-index: 2;
+  box-shadow:
+    inset 0 1px 0 rgba(255,200,120,0.06),
+    0 2px 8px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+.stream-end {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  border-right: 1px solid var(--panel-edge);
+  background: linear-gradient(180deg, #1a120a 0%, #0c0805 100%);
+  min-width: 110px;
+}
+.stream-end.right {
+  border-right: none;
+  border-left: 1px solid var(--panel-edge);
+  text-align: right;
+}
+.stream-end .lbl {
+  font-family: var(--font-stencil);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+}
+.stream-end .val {
+  font-family: var(--font-crt);
+  font-size: 20px;
+  color: var(--amber);
+  letter-spacing: 0.14em;
+  text-shadow: 0 0 6px var(--amber-glow);
+}
+
+.stream-track {
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(217,199,154,0.025) 0 1px,
+      transparent 1px 60px
+    ),
+    radial-gradient(ellipse at 100% 50%, var(--amber-faint), transparent 70%);
+}
+
+.stream-track::after {
+  /* fade-out on the left edge like fading paper tape */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #050806 0%, transparent 8%, transparent 92%, rgba(255,176,0,0.05) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Each tape item is absolutely placed and its `right` offset is updated
+   every animation frame, so the whole tape scrolls smoothly from right
+   to left even when no new signals arrive. */
+.stream-item {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-crt);
+  font-size: 30px;
+  color: var(--amber);
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 6px var(--amber-glow);
+  white-space: nowrap;
+  animation: tape-fade-in 260ms ease-out;
+  will-change: right, opacity;
+}
+.stream-item .code-glyph {
+  display: inline-block;
+}
+.stream-item .ltr-glyph {
+  font-family: var(--font-stencil);
+  font-size: 12px;
+  color: var(--paper-dim);
+  letter-spacing: 0.1em;
+  vertical-align: 4px;
+  text-shadow: none;
+  margin-left: 4px;
+}
+.stream-item.spacer {
+  color: var(--paper-dim);
+  text-shadow: none;
+  font-size: 22px;
+  opacity: 0.55;
+}
+.stream-item.invalid {
+  color: var(--signal-red);
+  text-shadow: 0 0 6px rgba(201,58,42,0.55);
+}
+
+@keyframes tape-fade-in {
+  from { opacity: 0; filter: blur(3px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+.stream-keyer {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+
+/* small status keyer at the right edge of the stream */
+.keyer.mini {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #1f1208, #050806);
+  border: 1px solid #3a2818;
+  display: grid;
+  place-items: center;
+  transition: all 80ms ease-out;
+  flex-shrink: 0;
+}
+.keyer.mini.on {
+  background: radial-gradient(circle at 30% 30%, #fff4cf, #ffb000 55%, #5a3a00 100%);
+  border-color: var(--amber-bright);
+  box-shadow:
+    0 0 12px var(--amber),
+    0 0 26px var(--amber-glow);
+}
+.keyer.mini .sign {
+  font-family: var(--font-crt);
+  font-size: 18px;
+  color: var(--amber-bright);
+  text-shadow: 0 0 4px var(--amber-glow);
+  visibility: hidden;
+  line-height: 1;
+}
+.keyer.mini.on .sign {
+  color: #1a0d04;
+  text-shadow: none;
+  visibility: visible;
+}
+
+/* === OPERATOR TELEGRAPH KEY === */
+
+.op-key-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-left: 1px solid var(--panel-edge);
+  background: linear-gradient(180deg, #1a120a 0%, #0c0805 100%);
+  min-width: 200px;
+  position: relative;
+}
+
+.op-key-hint {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-stencil);
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+  text-align: right;
+  line-height: 1.3;
+}
+.op-key-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--paper);
+  background: #1a120a;
+  border: 1px solid var(--panel-edge);
+  padding: 0 4px;
+  border-radius: 2px;
+  letter-spacing: 0.08em;
+}
+
+.op-key {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 70px;
+  cursor: pointer;
+  position: relative;
+  display: block;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.op-key:focus-visible .op-key-knob {
+  box-shadow:
+    0 0 0 2px rgba(255,200,120,0.4),
+    0 0 12px var(--amber-glow),
+    inset 0 1px 1px rgba(255,255,255,0.18),
+    inset 0 -2px 3px rgba(0,0,0,0.6);
+}
+
+/* the wooden base / bakelite plinth */
+.op-key-base {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 6px;
+  height: 14px;
+  background:
+    linear-gradient(180deg, #3a2718 0%, #1f140a 100%);
+  border: 1px solid #4d3520;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,200,120,0.18),
+    inset 0 -2px 3px rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.6);
+}
+.op-key-base::after {
+  /* tiny screw heads */
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 calc(50% - 1.5px),
+    var(--brass-shadow) calc(50% - 1.5px) calc(50% + 1.5px),
+    transparent calc(50% + 1.5px) 100%
+  );
+}
+
+/* the lever arm of the key — tilts down when pressed */
+.op-key-arm {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  height: 14px;
+  background:
+    linear-gradient(180deg, #d9b070 0%, #a87a32 50%, #6b4a1c 100%);
+  border: 1px solid #6b4a1c;
+  border-radius: 2px;
+  transform-origin: 90% 50%;
+  transition: transform 100ms ease-out;
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.25),
+    inset 0 -2px 3px rgba(0,0,0,0.5),
+    0 2px 4px rgba(0,0,0,0.55);
+}
+.op-key-arm::before {
+  /* pivot pin on the right */
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle at 35% 30%, #ffd9a0, #8c6020 60%, #2a1c0e 100%);
+  border-radius: 50%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 1px #4d3520, 0 1px 2px rgba(0,0,0,0.7);
+}
+
+/* the round knob the operator presses on */
+.op-key-knob {
+  position: absolute;
+  left: 16%;
+  top: 50%;
+  transform: translate(-50%, -82%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2a1c10 0%, #0a0604 70%, #050302 100%);
+  border: 1px solid #3a2818;
+  box-shadow:
+    inset 0 2px 2px rgba(255,200,120,0.16),
+    inset 0 -3px 4px rgba(0,0,0,0.85),
+    0 3px 6px rgba(0,0,0,0.7);
+  transition: transform 100ms ease-out, box-shadow 100ms;
+}
+.op-key-knob::after {
+  /* ivory-ish cap */
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #5a3e22 0%, #20140a 100%);
+}
+
+.op-key.pressed .op-key-arm {
+  transform: rotate(8deg);
+  background:
+    linear-gradient(180deg, #ffe39c 0%, #ffb000 45%, #8c6020 100%);
+  box-shadow:
+    0 0 12px var(--amber-glow),
+    inset 0 1px 1px rgba(255,255,255,0.35),
+    inset 0 -2px 3px rgba(0,0,0,0.5),
+    0 2px 4px rgba(0,0,0,0.55);
+}
+.op-key.pressed .op-key-knob {
+  transform: translate(-50%, -55%);
+  box-shadow:
+    0 0 16px var(--amber-glow),
+    0 0 24px rgba(255,176,0,0.45),
+    inset 0 0 6px #ffe39c;
+}
+.op-key.pressed .op-key-knob::after {
+  background: radial-gradient(circle at 35% 30%, #fff4cf 0%, #ffb000 70%, #8c6020 100%);
+}
+
+@media (max-width: 1080px) {
+  .op-key-wrap { min-width: 160px; padding: 8px 12px; }
+}
+
 .muted { color: var(--paper-dim); }
 .brass { color: var(--brass-hi); }
 .small { font-size: 11px; }
