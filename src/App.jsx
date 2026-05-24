@@ -1,13 +1,26 @@
 import { useState } from 'react'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
+import {
+  loadCallsign, saveCallsign,
+  loadFrequency, saveFrequency,
+} from './lib/identity.js'
 
 export default function App() {
-  // hardcoded for now — operator identity comes later
-  const callsign = 'K6Z-DELTA'
-  const frequency = 14_073
+  const [callsign, setCallsignState] = useState(() => loadCallsign())
+  const [frequency, setFrequencyState] = useState(() => loadFrequency())
 
-  // buffer of the letter currently being keyed (no keyer wired yet)
+  // eslint-disable-next-line no-unused-vars
+  const setCallsign = (v) => {
+    const clean = saveCallsign(v)
+    setCallsignState(clean)
+  }
+  // eslint-disable-next-line no-unused-vars
+  const setFrequency = (v) => {
+    saveFrequency(v)
+    setFrequencyState(v)
+  }
+
   const [currentCode] = useState('')
   const activeSign = null
 
