@@ -17,6 +17,9 @@ services:
         # Baked into the SPA at build time. Keep in sync with the relay domain.
         VITE_RADIO_URL: ${VITE_RADIO_URL:-wss://ws.shortwaveradio.online}
     restart: unless-stopped
+    environment:
+      # Coolify magic var: route this service (port 80) to this domain via Traefik.
+      - SERVICE_FQDN_WEB_80=https://shortwaveradio.online
     expose:
       - "80"
     healthcheck:
@@ -31,7 +34,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      PORT: 8787
+      - PORT=8787
+      # Coolify magic var: route this service (port 8787) to the relay domain.
+      - SERVICE_FQDN_RELAY_8787=https://ws.shortwaveradio.online
     expose:
       - "8787"
     healthcheck:
