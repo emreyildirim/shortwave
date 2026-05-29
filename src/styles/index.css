@@ -107,7 +107,7 @@ body::after {
   width: 100vw;
   padding: 14px;
   display: grid;
-  grid-template-rows: auto 1fr auto auto;
+  grid-template-rows: auto 1fr auto auto auto;
   gap: 12px;
   background:
     radial-gradient(ellipse at 50% 40%, #221813 0%, #0c0907 70%, #050302 100%),
@@ -2059,4 +2059,163 @@ body::after {
     font-family: var(--font-stencil); font-size: 10px; letter-spacing: 0.14em;
     color: var(--paper-faint); text-align: right;
   }
+}
+
+/* =====================================================================
+   SITE NAV (console footer) + CONTENT PAGES (about / privacy)
+   ===================================================================== */
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-stencil);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--paper-dim);
+}
+.site-nav a {
+  color: var(--paper-faint);
+  text-decoration: none;
+  transition: color 160ms, text-shadow 160ms;
+}
+.site-nav a:hover {
+  color: var(--amber-bright);
+  text-shadow: 0 0 6px var(--amber-glow);
+}
+.site-nav .sep { opacity: 0.4; }
+.site-nav-desktop { position: relative; z-index: 2; padding: 1px 0 3px; }
+.site-nav-mobile { padding: 8px 0 4px; font-size: 10px; }
+
+/* aged-paper content sheet, operator's-notepad vibe */
+.info-wrap {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: clamp(24px, 6vh, 64px) 16px 64px;
+  background:
+    radial-gradient(ellipse at 50% 30%, #221813 0%, #0c0907 70%, #050302 100%),
+    var(--ink-warm);
+}
+
+.paper-sheet {
+  width: 100%;
+  max-width: 720px;
+  border: 1px solid var(--panel-edge);
+  border-radius: 5px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(217,199,154,0.02) 0px,
+      rgba(217,199,154,0.02) 27px,
+      rgba(217,199,154,0.05) 28px,
+      transparent 29px
+    ),
+    linear-gradient(180deg, #1f1610 0%, #14100a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,200,120,0.06),
+    0 10px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(0,0,0,0.5);
+}
+.paper-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 22px;
+  border-bottom: 1px dashed rgba(217,199,154,0.18);
+  font-family: var(--font-stencil);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--paper-dim);
+}
+.paper-stamp {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.2em;
+  color: var(--brass-hi);
+  text-shadow: 0 0 8px rgba(231,192,103,0.3);
+}
+.paper-body {
+  padding: 26px 30px 30px;
+}
+.paper-body h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  color: var(--brass-hi);
+  text-shadow: 0 0 12px rgba(231,192,103,0.22);
+  margin: 0 0 8px;
+}
+.paper-body .lede {
+  font-family: var(--font-stencil);
+  font-style: italic;
+  color: var(--paper-faint);
+  margin-bottom: 22px;
+}
+.paper-body h2 {
+  font-family: var(--font-stencil);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--amber);
+  text-shadow: 0 0 6px var(--amber-glow);
+  margin: 26px 0 8px;
+}
+.paper-body p {
+  font-family: var(--font-stencil), 'Courier New', monospace;
+  font-size: 15px;
+  line-height: 1.72;
+  letter-spacing: 0.02em;
+  color: var(--paper);
+  text-shadow: 0 0 1px rgba(0,0,0,0.5);
+  margin: 0 0 12px;
+}
+.paper-body a {
+  color: var(--amber-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.paper-body a:hover { text-shadow: 0 0 6px var(--amber-glow); }
+.paper-body strong { color: var(--amber); }
+.paper-body em { color: var(--rx-green); font-style: italic; }
+.paper-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px dashed rgba(217,199,154,0.18);
+  font-family: var(--font-stencil);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+.paper-link {
+  color: var(--amber);
+  text-decoration: none;
+}
+.paper-link:hover { text-shadow: 0 0 6px var(--amber-glow); }
+.paper-nav {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--paper-dim);
+}
+.paper-nav a { color: var(--paper-faint); text-decoration: none; }
+.paper-nav a:hover { color: var(--amber-bright); }
+.paper-nav .sep { opacity: 0.4; }
+
+@media (max-width: 768px) {
+  .paper-body { padding: 20px 18px 24px; }
+  .paper-body h1 { font-size: 24px; }
+  .paper-body p { font-size: 14px; }
+  .paper-foot { flex-direction: column; align-items: flex-start; }
 }

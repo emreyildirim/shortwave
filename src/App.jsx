@@ -9,6 +9,8 @@ import ChannelPanel from './components/ChannelPanel.jsx'
 import SignalStream from './components/SignalStream.jsx'
 import MobileConsole from './components/MobileConsole.jsx'
 import AdSlot from './components/AdSlot.jsx'
+import InfoPage from './components/InfoPage.jsx'
+import SiteFooter from './components/SiteFooter.jsx'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
@@ -22,6 +24,23 @@ export default function App() {
   const [earCopy, setEarCopyState] = useState(() => loadEarCopy())
   const [notepad, setNotepadState] = useState(() => loadNotepad())
   const isMobile = useIsMobile()
+
+  // Tiny path router: '/' is the console, '/about' & '/privacy' are content
+  // pages. nginx serves index.html for all paths (SPA fallback).
+  const [path, setPath] = useState(() =>
+    typeof window === 'undefined' ? '/' : window.location.pathname)
+  useEffect(() => {
+    const onPop = () => setPath(window.location.pathname)
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+  const navigate = (to) => {
+    if (to === window.location.pathname) return
+    window.history.pushState({}, '', to)
+    setPath(to)
+    window.scrollTo(0, 0)
+  }
+  const onConsole = path !== '/about' && path !== '/privacy'
 
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
@@ -40,8 +59,9 @@ export default function App() {
     saveNotepad(v)
   }
 
-  // Channel layer first so we can pass its callbacks into the simulator
-  const channel = useRadioChannel({ frequency, callsign })
+  // Channel layer first so we can pass its callbacks into the simulator.
+  // Disabled off the console so reading the policy doesn't open a relay socket.
+  const channel = useRadioChannel({ frequency, callsign, enabled: onConsole })
   const listening = channel.myRole === 'listener'
 
   const sim = useMorseSimulator({
@@ -54,8 +74,9 @@ export default function App() {
 
   const wpm = Math.round(1200 / sim.dotMs)
 
-  // Spacebar = global telegraph key
+  // Spacebar = global telegraph key (console only)
   useEffect(() => {
+    if (!onConsole) return
     const onDown = (e) => {
       if (e.code !== 'Space' || e.repeat) return
       const t = e.target
@@ -79,7 +100,7 @@ export default function App() {
       window.removeEventListener('keyup', onUp)
       window.removeEventListener('blur', onBlur)
     }
-  }, [sim])
+  }, [sim, onConsole])
 
   // merge local + remote logs sorted by time for the message log
   const mergedLog = useMemo(() => {
@@ -87,6 +108,10 @@ export default function App() {
     const remote = channel.remoteLog.map((e) => ({ ...e, kind: 'rx' }))
     return [...local, ...remote].sort((a, b) => a.t - b.t).slice(-200)
   }, [sim.decodedLog, channel.remoteLog])
+
+  if (!onConsole) {
+    return <InfoPage page={path === '/privacy' ? 'privacy' : 'about'} navigate={navigate} />
+  }
 
   if (isMobile) {
     return (
@@ -103,6 +128,7 @@ export default function App() {
           onEarCopyChange={setEarCopy}
           notepad={notepad}
           onNotepadChange={setNotepad}
+          navigate={navigate}
         />
       </div>
     )
@@ -168,6 +194,8 @@ export default function App() {
         />
 
         <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
+
+        <SiteFooter navigate={navigate} variant="desktop" />
       </div>
     </div>
   )

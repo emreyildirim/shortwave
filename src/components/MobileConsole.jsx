@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import SignalStream from './SignalStream.jsx'
 import AdSlot from './AdSlot.jsx'
+import SiteFooter from './SiteFooter.jsx'
 import { randomFrequency } from '../lib/identity.js'
 
 const formatFreq = (kHz) => {
@@ -23,6 +24,7 @@ export default function MobileConsole({
   onEarCopyChange,
   notepad,
   onNotepadChange,
+  navigate,
 }) {
   const listening = channel.myRole === 'listener'
   const connected = channel.isConnected
@@ -160,6 +162,8 @@ export default function MobileConsole({
             : 'off the air'}
         </div>
       </footer>
+
+      <SiteFooter navigate={navigate} variant="mobile" />
     </div>
   )
 }
