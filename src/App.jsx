@@ -99,6 +99,10 @@ export default function App() {
           sim={sim}
           mergedLog={mergedLog}
           wpm={wpm}
+          earCopy={earCopy}
+          onEarCopyChange={setEarCopy}
+          notepad={notepad}
+          onNotepadChange={setNotepad}
         />
       </div>
     )

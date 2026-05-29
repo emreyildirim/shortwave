@@ -19,6 +19,10 @@ export default function MobileConsole({
   sim,
   mergedLog,
   wpm,
+  earCopy,
+  onEarCopyChange,
+  notepad,
+  onNotepadChange,
 }) {
   const listening = channel.myRole === 'listener'
   const connected = channel.isConnected
@@ -80,12 +84,38 @@ export default function MobileConsole({
             {formatFreq(frequency)} <span className="mhz">MHz</span> ↻
           </button>
         </div>
-        <div className="m-decoded">{recent || <span className="m-dim">— channel quiet —</span>}</div>
-        <div className="m-pending">
-          <span className="m-pending-tag">{rxKeying ? `RX ${remote.callsign || 'PEER'}` : 'TX'}</span>
-          <span className="m-pending-code">{pendingCode}</span>
-          <span className={`m-cursor ${sim.isKeying || rxKeying ? 'hot' : ''}`} />
+        <div className="m-mode-row">
+          <button
+            className={`m-mode ${earCopy ? 'on' : ''}`}
+            onClick={() => onEarCopyChange(!earCopy)}
+            aria-pressed={earCopy}
+          >
+            <span className="m-mode-dot" />
+            {earCopy ? 'EAR-COPY' : 'ASSIST'}
+          </button>
+          <span className="m-mode-hint">
+            {earCopy ? 'decoder off · transcribe by ear' : 'auto-decode on'}
+          </span>
         </div>
+
+        {earCopy ? (
+          <textarea
+            className="m-notepad"
+            value={notepad}
+            onChange={(e) => onNotepadChange(e.target.value)}
+            placeholder="Transcribe what you hear…"
+            spellCheck={false}
+          />
+        ) : (
+          <>
+            <div className="m-decoded">{recent || <span className="m-dim">— channel quiet —</span>}</div>
+            <div className="m-pending">
+              <span className="m-pending-tag">{rxKeying ? `RX ${remote.callsign || 'PEER'}` : 'TX'}</span>
+              <span className="m-pending-code">{pendingCode}</span>
+              <span className={`m-cursor ${sim.isKeying || rxKeying ? 'hot' : ''}`} />
+            </div>
+          </>
+        )}
       </section>
 
       <button

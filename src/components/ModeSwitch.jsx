@@ -15,8 +15,13 @@ export default function ModeSwitch({ earCopy, onChange }) {
         aria-pressed={earCopy}
         title="Toggle ASSIST / EAR-COPY"
       >
-        <span className={`mode-side left ${!earCopy ? 'active' : ''}`}>
-          ASSIST
+        <span className="mode-labels">
+          <span className={`mode-side left ${!earCopy ? 'active' : ''}`}>
+            ASSIST
+          </span>
+          <span className={`mode-side right ${earCopy ? 'active' : ''}`}>
+            EAR-COPY
+          </span>
         </span>
         <span className="mode-track">
           <span className="mode-detent left-detent" />
@@ -24,9 +29,6 @@ export default function ModeSwitch({ earCopy, onChange }) {
           <span className="mode-knob">
             <span className="mode-knob-cap" />
           </span>
-        </span>
-        <span className={`mode-side right ${earCopy ? 'active' : ''}`}>
-          EAR-COPY
         </span>
       </button>
       <div className="mode-switch-hint">

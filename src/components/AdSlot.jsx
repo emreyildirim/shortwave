@@ -26,6 +26,11 @@ function ensureAdSenseLoader(client) {
   document.head.appendChild(s)
 }
 
+// As soon as a publisher ID is configured, load the AdSense snippet on every
+// page load — this is what Google checks for site/account review, so approval
+// works even while no ad units are rendered yet.
+if (CLIENT) ensureAdSenseLoader(CLIENT)
+
 export default function AdSlot({ slot, variant = 'desktop-bottom', label = 'SPONSORED TRANSMISSION' }) {
   const insRef = useRef(null)
   const live = Boolean(CLIENT && slot)
