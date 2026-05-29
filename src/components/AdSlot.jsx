@@ -44,16 +44,12 @@ export default function AdSlot({ slot, variant = 'desktop-bottom', label = 'SPON
   }, [live])
 
   if (!live) {
-    // No publisher ID yet: show the reserved slot only while developing so the
-    // layout is visible; render nothing in production so visitors don't see a
-    // fake placeholder before real ads are approved.
-    if (!import.meta.env?.DEV) return null
+    // No publisher ID yet: keep the reserved slot visible (an empty bracketed
+    // frame, no text) so the layout is final now and ads drop straight in.
     return (
       <div className={`ad-slot ad-${variant} ad-placeholder`} aria-hidden="true">
         <span className="ad-corner tl" /><span className="ad-corner tr" />
         <span className="ad-corner bl" /><span className="ad-corner br" />
-        <span className="ad-label">{label}</span>
-        <span className="ad-sub">ad slot · dev preview</span>
       </div>
     )
   }

@@ -2,6 +2,8 @@
 // aged paper, typewriter type. Reachable at /about and /privacy so the site
 // has real, crawlable content + a privacy policy (needed for AdSense review).
 
+import AdSlot from './AdSlot.jsx'
+
 const CONTACT = '98yildirimemre@gmail.com'
 const GITHUB = 'https://github.com/emreyildirim/shortwave'
 
@@ -146,6 +148,10 @@ export default function InfoPage({ page, navigate }) {
           </nav>
         </footer>
       </article>
+
+      <div className="info-ad">
+        <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
+      </div>
     </div>
   )
 }
