@@ -60,14 +60,18 @@ server. Two pieces, two deploy targets.
 
 ### Coolify (self-hosted)
 
-- **Relay (backend)** — add a new "Dockerfile" application, base directory
-  `server/`, port `8787`, healthcheck `/healthz`. Coolify's Traefik handles
-  WebSocket upgrades out of the box; expose it on a subdomain like
-  `relay.example.com`.
-- **Frontend** — add a "Static Site" application, base directory `.`,
-  build command `npm install && npm run build`, publish directory `dist`.
-  Set `VITE_RADIO_URL=wss://relay.example.com` as a build-time env var,
-  serve it on `shortwave.example.com`.
+Deployed as a **single Docker Compose resource** (`docker-compose.yaml`) with
+two services:
+
+- `web` — the Vite build served by nginx → `shortwaveradio.online` (port 80)
+- `relay` — the WebSocket bus → `ws.shortwaveradio.online` (port 8787)
+
+In Coolify: New Application → your repo → Build Pack **Docker Compose**, then
+assign each service its domain. `VITE_RADIO_URL` is baked at build time
+(default `wss://ws.shortwaveradio.online`). Traefik terminates TLS and proxies
+the WebSocket upgrade automatically.
+
+Full step-by-step (DNS, domains, auto-deploy webhook): see **[DEPLOY.md](./DEPLOY.md)**.
 
 ### Fly.io (relay only)
 
