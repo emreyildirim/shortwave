@@ -1,17 +1,5 @@
 import { useEffect, useState } from 'react'
 
-const Antenna = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-    <path d="M12 3 L12 13" />
-    <path d="M8 6 L12 3 L16 6" />
-    <path d="M9 9 L12 7 L15 9" />
-    <circle cx="12" cy="15" r="2" fill="currentColor" stroke="none" />
-    <path d="M6 21 L18 21" strokeLinecap="round" />
-    <path d="M9 18 L9 21" />
-    <path d="M15 18 L15 21" />
-  </svg>
-)
-
 const formatFreq = (kHz) => {
   const mhz = Math.floor(kHz / 1000)
   const rem = String(kHz % 1000).padStart(3, '0')
@@ -40,7 +28,7 @@ export default function RadioPanel({
     <header className="top-panel">
       <div className="brand">
         <div className="seal">
-          <Antenna />
+          <img className="seal-logo" src="/favicon.svg" alt="Shortwave" width="28" height="28" />
         </div>
         <div className="title">
           <div className="name">SHORTWAVE</div>

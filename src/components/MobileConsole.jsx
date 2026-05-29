@@ -68,7 +68,10 @@ export default function MobileConsole({
   return (
     <div className="m-console">
       <header className="m-top">
-        <div className="m-brand">SHORTWAVE</div>
+        <div className="m-brand">
+          <img className="m-logo" src="/favicon.svg" alt="" width="22" height="22" />
+          SHORTWAVE
+        </div>
         <div className="m-call">{callsign || 'UNKNOWN'}</div>
         <div className={`m-net ${connected ? 'on' : 'off'}`}>
           <span className="m-net-dot" />{statusLabel}
