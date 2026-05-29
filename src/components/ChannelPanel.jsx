@@ -6,6 +6,7 @@ export default function ChannelPanel({
   onFrequencyChange,
   status,
   peers,
+  myRole = 'operator',
   callsign,
   onCallsignChange,
   signalStrength,
@@ -14,6 +15,7 @@ export default function ChannelPanel({
   earCopy,
   onEarCopyChange,
 }) {
+  const listening = myRole === 'listener'
   const angle = -55 + signalStrength * 110
 
   const statusClass = {
@@ -52,6 +54,11 @@ export default function ChannelPanel({
             <span className={statusClass}><span className="bulb" /></span>
             <span className="link-text">{statusLabel}</span>
           </div>
+          {status === 'connected' && (
+            <div className={`role-badge ${listening ? 'is-listen' : 'is-tx'}`}>
+              {listening ? 'LISTEN ONLY · FREQ FULL' : 'CLEARED TO TRANSMIT'}
+            </div>
+          )}
         </div>
 
         <div className="gauge">
@@ -81,11 +88,14 @@ export default function ChannelPanel({
             <ul className="peer-list">
               {peers.map((p) => {
                 const active = remote?.peerId === p.id && remote?.isKeying
+                const op = p.role !== 'listener'
                 return (
                   <li key={p.id} className={`peer-row ${active ? 'is-active' : ''}`}>
                     <span className={`peer-dot ${active ? 'pulse' : ''}`} />
                     <span className="peer-name">{p.callsign}</span>
-                    <span className="peer-tag">RX</span>
+                    <span className={`peer-tag ${op ? 'is-op' : 'is-listen'}`}>
+                      {op ? 'TX' : 'RX'}
+                    </span>
                   </li>
                 )
               })}

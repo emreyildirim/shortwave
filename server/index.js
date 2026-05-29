@@ -54,16 +54,35 @@ function send(ws, msg) {
   try { ws.send(JSON.stringify(msg)) } catch {}
 }
 
+// Per frequency, the first 2 occupants are "operators" (may transmit); anyone
+// beyond that is a "listener" (receive only).
+const MAX_OPERATORS = 2
+
 function leaveRoom(ws) {
   if (ws.frequency == null) return
   const freq = ws.frequency
   const room = rooms.get(freq)
   if (room) {
     room.delete(ws)
+
+    // If an operator left, promote the longest-waiting listener so the
+    // transmit slot doesn't stay dead while listeners are queued.
+    if (ws.role === 'operator') {
+      const next = [...room].find((p) => p.readyState === 1 && p.role === 'listener')
+      if (next) {
+        next.role = 'operator'
+        send(next, { type: 'role-assigned', role: 'operator' })
+        broadcast(freq, {
+          type: 'peer-role-changed', peerId: next.peerId, role: 'operator',
+        }, next)
+      }
+    }
+
     if (room.size === 0) rooms.delete(freq)
     broadcast(freq, { type: 'peer-left', peerId: ws.peerId })
   }
   ws.frequency = null
+  ws.role = null
 }
 
 function joinRoom(ws, freq) {
@@ -71,17 +90,21 @@ function joinRoom(ws, freq) {
   ws.frequency = freq
   const room = getRoom(freq)
 
+  // Role decided by how many operators are already present.
+  const operators = [...room].filter((p) => p.readyState === 1 && p.role === 'operator')
+  ws.role = operators.length < MAX_OPERATORS ? 'operator' : 'listener'
+
   const peers = []
   for (const p of room) {
     if (p === ws || p.readyState !== 1) continue
-    peers.push({ id: p.peerId, callsign: p.callsign })
+    peers.push({ id: p.peerId, callsign: p.callsign, role: p.role })
   }
   room.add(ws)
 
-  send(ws, { type: 'tuned', frequency: freq, peers })
+  send(ws, { type: 'tuned', frequency: freq, peers, myRole: ws.role })
   broadcast(freq, {
     type: 'peer-joined',
-    peer: { id: ws.peerId, callsign: ws.callsign },
+    peer: { id: ws.peerId, callsign: ws.callsign, role: ws.role },
   }, ws)
 }
 
@@ -106,6 +129,7 @@ wss.on('connection', (ws, req) => {
   ws.peerId = `p${nextPeerId++}`
   ws.callsign = 'UNKNOWN'
   ws.frequency = null
+  ws.role = null
   ws.isAlive = true
   ws.on('pong', () => { ws.isAlive = true })
 
@@ -135,8 +159,10 @@ wss.on('connection', (ws, req) => {
         }
         break
       }
+      // Transmit messages only fan out from operators. Listeners are dropped
+      // silently (their client also blocks keying, this is the safety net).
       case 'key-down': {
-        if (ws.frequency != null) {
+        if (ws.frequency != null && ws.role === 'operator') {
           broadcast(ws.frequency, {
             type: 'peer-key-down',
             peerId: ws.peerId,
@@ -145,7 +171,7 @@ wss.on('connection', (ws, req) => {
         break
       }
       case 'key-up': {
-        if (ws.frequency != null) {
+        if (ws.frequency != null && ws.role === 'operator') {
           broadcast(ws.frequency, {
             type: 'peer-key-up',
             peerId: ws.peerId,
@@ -156,7 +182,7 @@ wss.on('connection', (ws, req) => {
         break
       }
       case 'letter': {
-        if (ws.frequency != null) {
+        if (ws.frequency != null && ws.role === 'operator') {
           broadcast(ws.frequency, {
             type: 'peer-letter',
             peerId: ws.peerId,

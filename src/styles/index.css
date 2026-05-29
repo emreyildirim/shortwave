@@ -107,7 +107,7 @@ body::after {
   width: 100vw;
   padding: 14px;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto auto;
   gap: 12px;
   background:
     radial-gradient(ellipse at 50% 40%, #221813 0%, #0c0907 70%, #050302 100%),
@@ -1699,3 +1699,308 @@ body::after {
 .muted { color: var(--paper-dim); }
 .brass { color: var(--brass-hi); }
 .small { font-size: 11px; }
+
+/* =====================================================================
+   ROLE — operator (TX) vs listener (RX-only)
+   ===================================================================== */
+
+.role-badge {
+  margin-top: 8px;
+  text-align: center;
+  font-family: var(--font-stencil);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+.role-badge.is-tx {
+  color: var(--rx-green);
+  border-color: rgba(123,224,138,0.4);
+  background: rgba(123,224,138,0.08);
+  text-shadow: 0 0 5px var(--rx-glow);
+}
+.role-badge.is-listen {
+  color: var(--signal-red);
+  border-color: rgba(201,58,42,0.5);
+  background: rgba(201,58,42,0.1);
+}
+
+.peer-tag.is-op { color: var(--rx-green); }
+.peer-tag.is-listen { color: var(--paper-dim); }
+
+/* =====================================================================
+   AD SLOTS (Google AdSense) — placeholder reserves the live dimensions
+   ===================================================================== */
+
+.ad-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.ad-desktop-bottom { height: 66px; width: 100%; }
+.ad-mobile-top { height: 60px; width: 100%; }
+
+.ad-placeholder {
+  background:
+    repeating-linear-gradient(45deg, rgba(176,136,64,0.05) 0 8px, transparent 8px 16px),
+    linear-gradient(180deg, #1a130d, #0f0a06);
+  border: 1px solid var(--panel-edge);
+  box-shadow: inset 0 1px 0 rgba(255,200,120,0.05), inset 0 -1px 0 rgba(0,0,0,0.7);
+}
+.ad-label {
+  font-family: var(--font-stencil);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  color: var(--brass);
+  opacity: 0.7;
+}
+.ad-sub {
+  position: absolute;
+  bottom: 3px;
+  right: 8px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+}
+.ad-corner {
+  position: absolute;
+  width: 8px; height: 8px;
+  border: 1px solid var(--brass-shadow);
+}
+.ad-corner.tl { top: 4px; left: 4px; border-right: 0; border-bottom: 0; }
+.ad-corner.tr { top: 4px; right: 4px; border-left: 0; border-bottom: 0; }
+.ad-corner.bl { bottom: 4px; left: 4px; border-right: 0; border-top: 0; }
+.ad-corner.br { bottom: 4px; right: 4px; border-left: 0; border-top: 0; }
+
+/* =====================================================================
+   TABLET (769–1024px) — tighten the 3-column desktop layout
+   ===================================================================== */
+
+@media (max-width: 1024px) {
+  .shell { padding: 10px; gap: 10px; }
+  .main { grid-template-columns: 198px minmax(0, 1fr) 198px; gap: 10px; }
+  .top-panel { gap: 12px; padding: 10px 14px; }
+  .brand .sub { display: none; }
+  .top-panel .title .name { font-size: 18px; }
+  .node.is-dot { width: 30px; height: 30px; font-size: 11px; }
+  .node.is-dash { width: 42px; height: 24px; font-size: 11px; }
+  .tree-stage { inset: 28px 14px 44px 14px; }
+  .signal-stream { height: 104px; }
+  .op-key-wrap { min-width: 150px; }
+  .ad-desktop-bottom { height: 56px; }
+}
+
+@media (max-width: 880px) {
+  .main { grid-template-columns: 170px minmax(0, 1fr) 170px; }
+  .indicators { gap: 8px; }
+}
+
+/* =====================================================================
+   MOBILE (<=768px) — tree-less, key-centric console
+   ===================================================================== */
+
+@media (max-width: 768px) {
+  html, body, #root { height: auto; min-height: 100%; overflow: visible; }
+  body { overflow-y: auto; overflow-x: hidden; }
+
+  .shell-mobile {
+    display: block;
+    height: auto;
+    min-height: 100dvh;
+    width: 100%;
+    padding: 0;
+    grid-template-rows: none;
+  }
+
+  .m-console {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* header */
+  .m-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(180deg, #2a1d12, #0f0a06);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,200,120,0.06), 0 2px 6px rgba(0,0,0,0.6);
+  }
+  .m-brand {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.16em;
+    color: var(--brass-hi);
+    text-shadow: 0 0 8px rgba(231,192,103,0.3);
+  }
+  .m-call {
+    font-family: var(--font-crt);
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    text-shadow: 0 0 6px var(--amber-glow);
+  }
+  .m-net {
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--font-stencil);
+    font-size: 9px; letter-spacing: 0.18em;
+    color: var(--paper-dim);
+  }
+  .m-net-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--signal-red); box-shadow: 0 0 6px var(--signal-red); }
+  .m-net.on .m-net-dot { background: var(--rx-green); box-shadow: 0 0 6px var(--rx-glow); }
+
+  /* readout */
+  .m-readout {
+    background: radial-gradient(ellipse at 50% 0%, #18120c, #0a0604);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    padding: 12px 14px;
+    box-shadow: inset 0 0 24px rgba(0,0,0,0.6);
+  }
+  .m-readout-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .m-role {
+    font-family: var(--font-stencil); font-size: 10px; letter-spacing: 0.18em;
+    padding: 3px 8px; border-radius: 3px; border: 1px solid transparent;
+  }
+  .m-role.is-tx { color: var(--rx-green); border-color: rgba(123,224,138,0.4); background: rgba(123,224,138,0.08); }
+  .m-role.is-listen { color: var(--signal-red); border-color: rgba(201,58,42,0.5); background: rgba(201,58,42,0.1); }
+  .m-freq-jump {
+    background: none; border: 0; cursor: pointer;
+    font-family: var(--font-crt); font-size: 22px; letter-spacing: 0.04em;
+    color: var(--amber); text-shadow: 0 0 6px var(--amber-glow);
+  }
+  .m-freq-jump .mhz { font-family: var(--font-stencil); font-size: 9px; color: var(--paper-dim); letter-spacing: 0.2em; }
+  .m-decoded {
+    font-family: var(--font-crt);
+    font-size: 30px;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+    color: var(--amber-bright);
+    text-shadow: 0 0 8px var(--amber-glow);
+    min-height: 38px;
+    word-break: break-all;
+  }
+  .m-dim { color: var(--paper-dim); font-size: 14px; letter-spacing: 0.12em; }
+  .m-pending {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px; min-height: 22px;
+  }
+  .m-pending-tag {
+    font-family: var(--font-stencil); font-size: 9px; letter-spacing: 0.16em;
+    color: var(--paper-dim);
+  }
+  .m-pending-code {
+    font-family: var(--font-crt); font-size: 22px; letter-spacing: 0.1em;
+    color: var(--amber);
+  }
+  .m-cursor { width: 9px; height: 18px; background: var(--amber-faint); }
+  .m-cursor.hot { background: var(--amber); box-shadow: 0 0 8px var(--amber-glow); animation: blink 0.5s steps(1) infinite; }
+
+  /* big telegraph key */
+  .m-key {
+    flex: 1 1 auto;
+    min-height: 180px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    border: 1px solid var(--bakelite-rim);
+    border-radius: 8px;
+    background:
+      radial-gradient(ellipse at 50% 30%, #2a201c 0%, #140f0d 70%),
+      var(--bakelite);
+    box-shadow: inset 0 2px 0 rgba(255,200,120,0.08), inset 0 -3px 10px rgba(0,0,0,0.8), 0 4px 14px rgba(0,0,0,0.6);
+    cursor: pointer;
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    transition: transform 0.05s ease;
+  }
+  .m-key:active, .m-key.pressed {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.9);
+  }
+  .m-key.pressed { border-color: var(--amber); }
+  .m-key-cap {
+    width: 86px; height: 86px; border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%, var(--brass-hi), var(--brass) 45%, var(--brass-shadow) 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.25), inset 0 -4px 8px rgba(0,0,0,0.5);
+  }
+  .m-key.pressed .m-key-cap {
+    box-shadow: 0 0 16px var(--amber-glow), inset 0 2px 4px rgba(255,255,255,0.2);
+  }
+  .m-key-hint {
+    font-family: var(--font-stencil); font-size: 10px; letter-spacing: 0.16em;
+    color: var(--paper-dim);
+  }
+  .m-key.locked {
+    cursor: not-allowed;
+    background: linear-gradient(180deg, #1a130d, #0c0806);
+    border-color: rgba(201,58,42,0.4);
+  }
+  .m-key-locked {
+    font-family: var(--font-stencil); font-size: 13px; letter-spacing: 0.18em;
+    color: var(--signal-red); text-align: center; padding: 0 20px;
+  }
+
+  /* compact ticker */
+  .m-ticker { height: 46px; }
+  .signal-stream.is-compact {
+    display: block;
+    height: 46px;
+    padding: 0;
+    background: linear-gradient(180deg, #100b07, #08060a);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .signal-stream.is-compact .stream-track {
+    position: relative;
+    inset: auto;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* footer */
+  .m-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+  }
+  .m-step { display: flex; align-items: center; gap: 8px; }
+  .m-step button {
+    width: 42px; height: 42px;
+    border: 1px solid var(--bakelite-rim);
+    border-radius: 6px;
+    background: linear-gradient(180deg, var(--bakelite-hi), var(--bakelite));
+    color: var(--brass-hi);
+    font-size: 22px; font-family: var(--font-mono);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-step button:active { box-shadow: inset 0 2px 8px rgba(0,0,0,0.8); }
+  .m-step-val {
+    font-family: var(--font-crt); font-size: 20px;
+    color: var(--amber); text-shadow: 0 0 5px var(--amber-glow);
+    min-width: 78px; text-align: center;
+  }
+  .m-peers {
+    font-family: var(--font-stencil); font-size: 10px; letter-spacing: 0.14em;
+    color: var(--paper-faint); text-align: right;
+  }
+}

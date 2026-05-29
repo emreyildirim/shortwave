@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMorseSimulator } from './hooks/useMorseSimulator.js'
 import { useRadioChannel } from './hooks/useRadioChannel.js'
+import { useIsMobile } from './hooks/useIsMobile.js'
 import RadioPanel from './components/RadioPanel.jsx'
 import MorseTree from './components/MorseTree.jsx'
 import MessageLog from './components/MessageLog.jsx'
 import ChannelPanel from './components/ChannelPanel.jsx'
 import SignalStream from './components/SignalStream.jsx'
+import MobileConsole from './components/MobileConsole.jsx'
+import AdSlot from './components/AdSlot.jsx'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
@@ -18,6 +21,7 @@ export default function App() {
   const [frequency, setFrequencyState] = useState(() => loadFrequency())
   const [earCopy, setEarCopyState] = useState(() => loadEarCopy())
   const [notepad, setNotepadState] = useState(() => loadNotepad())
+  const isMobile = useIsMobile()
 
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
@@ -38,9 +42,11 @@ export default function App() {
 
   // Channel layer first so we can pass its callbacks into the simulator
   const channel = useRadioChannel({ frequency, callsign })
+  const listening = channel.myRole === 'listener'
 
   const sim = useMorseSimulator({
     wpm: 14,
+    listening,
     onKeyDown: () => channel.keyDown(),
     onKeyUp: (sign, durationMs) => channel.keyUp(sign, durationMs),
     onLetterCommit: (letter, code) => channel.sendLetter(letter, code),
@@ -82,6 +88,22 @@ export default function App() {
     return [...local, ...remote].sort((a, b) => a.t - b.t).slice(-200)
   }, [sim.decodedLog, channel.remoteLog])
 
+  if (isMobile) {
+    return (
+      <div className="shell shell-mobile">
+        <MobileConsole
+          callsign={callsign}
+          frequency={frequency}
+          onFrequencyChange={setFrequency}
+          channel={channel}
+          sim={sim}
+          mergedLog={mergedLog}
+          wpm={wpm}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="shell">
       <div className="stage">
@@ -120,6 +142,7 @@ export default function App() {
             onFrequencyChange={setFrequency}
             status={channel.status}
             peers={channel.peers}
+            myRole={channel.myRole}
             callsign={callsign}
             onCallsignChange={setCallsign}
             signalStrength={sim.signalStrength}
@@ -137,7 +160,10 @@ export default function App() {
           wpm={wpm}
           onKeyDown={sim.beginKey}
           onKeyUp={sim.endKey}
+          label={listening ? 'RX ONLY' : 'CW'}
         />
+
+        <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
       </div>
     </div>
   )

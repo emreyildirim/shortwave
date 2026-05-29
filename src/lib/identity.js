@@ -21,7 +21,20 @@ export function generateCallsign() {
 }
 
 const CALLSIGN_KEY = 'shortwave.callsign'
-const FREQ_KEY = 'shortwave.frequency'
+const SESSION_FREQ_KEY = 'shortwave.sessionFreq'
+
+// Realistic CW sub-bands (kHz). Each new visit lands on a random spot inside
+// one of these so operators spread out instead of all piling onto 14.073.
+const CW_SEGMENTS = [
+  [1800, 1840], [3500, 3570], [7000, 7040], [10100, 10130],
+  [14000, 14070], [18068, 18095], [21000, 21070], [24890, 24915],
+  [28000, 28070], [50000, 50100], [144000, 144100],
+]
+
+export function randomFrequency() {
+  const seg = CW_SEGMENTS[Math.floor(Math.random() * CW_SEGMENTS.length)]
+  return seg[0] + Math.floor(Math.random() * (seg[1] - seg[0] + 1))
+}
 
 export function loadCallsign() {
   try {
@@ -39,16 +52,21 @@ export function saveCallsign(value) {
   return v
 }
 
+// Random per session: a fresh visit picks a new frequency, but a reload in the
+// same tab keeps it (sessionStorage) so an in-progress QSO doesn't get torn
+// apart by an accidental refresh.
 export function loadFrequency() {
   try {
-    const v = Number(localStorage.getItem(FREQ_KEY))
+    const v = Number(sessionStorage.getItem(SESSION_FREQ_KEY))
     if (Number.isFinite(v) && v >= 1800 && v <= 148000) return v
   } catch {}
-  return 14_073
+  const fresh = randomFrequency()
+  try { sessionStorage.setItem(SESSION_FREQ_KEY, String(fresh)) } catch {}
+  return fresh
 }
 
 export function saveFrequency(freqKHz) {
-  try { localStorage.setItem(FREQ_KEY, String(Math.round(freqKHz))) } catch {}
+  try { sessionStorage.setItem(SESSION_FREQ_KEY, String(Math.round(freqKHz))) } catch {}
 }
 
 const EAR_COPY_KEY = 'shortwave.earCopy'

@@ -6,6 +6,7 @@ const MANUAL_COMMIT_MS = 750    // idle after release: commit buffer as letter
 
 export function useMorseSimulator({
   wpm = 14,
+  listening = false, // when true (frequency full / RX-only), keying is disabled
   onKeyDown,        // fired when the operator starts a sign (for socket fan-out)
   onKeyUp,          // fired when the operator releases — (sign, durationMs)
   onLetterCommit,   // fired when the buffer collapses to a valid letter
@@ -74,6 +75,7 @@ export function useMorseSimulator({
   }
 
   const beginKey = useCallback(() => {
+    if (listening) return  // RX-only: the key is dead
     if (manualCommitTimerRef.current) {
       clearTimeout(manualCommitTimerRef.current)
       manualCommitTimerRef.current = null
@@ -90,7 +92,7 @@ export function useMorseSimulator({
       manualHoldRef.current.sign = '-'
       setActiveSign('-')
     }, DASH_THRESHOLD_MS)
-  }, [onKeyDown])
+  }, [onKeyDown, listening])
 
   const endKey = useCallback(() => {
     if (manualHoldRef.current.growTimer) {

@@ -26,7 +26,8 @@ export function useRadioChannel({
   enabled = true,
 } = {}) {
   const [status, setStatus] = useState(CONNECTION_STATES.IDLE)
-  const [peers, setPeers] = useState([])   // [{id, callsign}]
+  const [myRole, setMyRole] = useState('operator')  // 'operator' | 'listener'
+  const [peers, setPeers] = useState([])   // [{id, callsign, role}]
   const [remote, setRemote] = useState({   // last-active peer's keying state
     peerId: null,
     callsign: null,
@@ -103,14 +104,20 @@ export function useRadioChannel({
     try { ws.send(JSON.stringify(msg)); return true } catch { return false }
   }, [])
 
-  // ----- public actions -----
-  const keyDown = useCallback(() => send({ type: 'key-down' }), [send])
+  // ----- public actions ----- (no-op for listeners; the key UI is also
+  // disabled, this just guards the wire)
+  const keyDown = useCallback(() => {
+    if (myRole !== 'operator') return false
+    return send({ type: 'key-down' })
+  }, [send, myRole])
   const keyUp = useCallback((sign, durationMs) => {
-    send({ type: 'key-up', sign, durationMs })
-  }, [send])
+    if (myRole !== 'operator') return false
+    return send({ type: 'key-up', sign, durationMs })
+  }, [send, myRole])
   const sendLetter = useCallback((letter, code) => {
-    send({ type: 'letter', letter, code })
-  }, [send])
+    if (myRole !== 'operator') return false
+    return send({ type: 'letter', letter, code })
+  }, [send, myRole])
 
   // ----- peer state mutation helpers -----
   const ensurePeerState = (peerId) => {
@@ -170,6 +177,15 @@ export function useRadioChannel({
         break
       case 'tuned':
         setPeers(msg.peers || [])
+        setMyRole(msg.myRole || 'operator')
+        break
+      case 'role-assigned':
+        setMyRole(msg.role === 'operator' ? 'operator' : 'listener')
+        break
+      case 'peer-role-changed':
+        setPeers((p) => p.map((x) => x.id === msg.peerId
+          ? { ...x, role: msg.role }
+          : x))
         break
       case 'peer-joined':
         setPeers((p) => [...p.filter((x) => x.id !== msg.peer.id), msg.peer])
@@ -272,6 +288,7 @@ export function useRadioChannel({
       }
       ws.onclose = () => {
         setStatus(CONNECTION_STATES.IDLE)
+        setMyRole('operator')
         setPeers([])
         setRemote({ peerId: null, callsign: null, activeSign: null, currentCode: '', isKeying: false })
         peerStateRef.current.forEach((s) => clearPeerCommitTimer(s))
@@ -333,6 +350,7 @@ export function useRadioChannel({
   return {
     status,
     isConnected: status === CONNECTION_STATES.CONNECTED,
+    myRole,
     peers,
     remote,
     remoteLog,

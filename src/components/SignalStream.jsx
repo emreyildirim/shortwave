@@ -12,6 +12,8 @@ export default function SignalStream({
   wpm,
   onKeyDown,
   onKeyUp,
+  compact = false,   // mobile ticker: just the flowing tape, no label/op-key
+  label = 'CW · 14.073',
 }) {
   // re-render at 60fps so each item's "right" offset advances continuously
   const [tick, setTick] = useState(() => performance.now())
@@ -72,11 +74,13 @@ export default function SignalStream({
   }).filter(({ rightPx }) => rightPx < trackW + FADE_PX)
 
   return (
-    <section className="signal-stream">
-      <div className="stream-end">
-        <span className="lbl">ETHER FEED</span>
-        <span className="val">CW · 14.073</span>
-      </div>
+    <section className={`signal-stream ${compact ? 'is-compact' : ''}`}>
+      {!compact && (
+        <div className="stream-end">
+          <span className="lbl">ETHER FEED</span>
+          <span className="val">{label}</span>
+        </div>
+      )}
 
       <div className="stream-track" ref={trackRef}>
         {positioned.map(({ it, rightPx }) => {
@@ -107,26 +111,28 @@ export default function SignalStream({
         </div>
       </div>
 
-      <div className="op-key-wrap">
-        <div className="op-key-hint">
-          <span>HOLD <kbd>SPACE</kbd> OR CLICK</span>
-          <span className="muted">SHORT = • · LONG = ▬</span>
-        </div>
-        <button
-          className={`op-key ${isKeying ? 'pressed' : ''}`}
-          onMouseDown={handleDown}
-          onMouseUp={handleUp}
-          onMouseLeave={handleUp}
-          onTouchStart={handleDown}
-          onTouchEnd={handleUp}
-          aria-label="Telegraph key"
-        >
-          <div className="op-key-base" />
-          <div className="op-key-arm">
-            <div className="op-key-knob" />
+      {!compact && (
+        <div className="op-key-wrap">
+          <div className="op-key-hint">
+            <span>HOLD <kbd>SPACE</kbd> OR CLICK</span>
+            <span className="muted">SHORT = • · LONG = ▬</span>
           </div>
-        </button>
-      </div>
+          <button
+            className={`op-key ${isKeying ? 'pressed' : ''}`}
+            onMouseDown={handleDown}
+            onMouseUp={handleUp}
+            onMouseLeave={handleUp}
+            onTouchStart={handleDown}
+            onTouchEnd={handleUp}
+            aria-label="Telegraph key"
+          >
+            <div className="op-key-base" />
+            <div className="op-key-arm">
+              <div className="op-key-knob" />
+            </div>
+          </button>
+        </div>
+      )}
     </section>
   )
 }
