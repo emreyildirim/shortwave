@@ -3,10 +3,8 @@
 #   web    → static Vite SPA served by nginx   → shortwaveradio.online
 #   relay  → WebSocket message bus (ws)         → ws.shortwaveradio.online
 #
-# In Coolify, after the first deploy, assign the domains per service:
-#   web   service, port 80   → https://shortwaveradio.online
-#   relay service, port 8787 → https://ws.shortwaveradio.online
-# Coolify/Traefik terminates TLS and proxies the WS upgrade automatically.
+# Per-service domains are configured in Coolify (docker_compose_domains),
+# not here. Coolify/Traefik terminates TLS and proxies the WS upgrade.
 
 services:
   web:
@@ -17,16 +15,8 @@ services:
         # Baked into the SPA at build time. Keep in sync with the relay domain.
         VITE_RADIO_URL: ${VITE_RADIO_URL:-wss://ws.shortwaveradio.online}
     restart: unless-stopped
-    environment:
-      # Coolify magic var: route this service (port 80) to this domain via Traefik.
-      - SERVICE_FQDN_WEB_80=https://shortwaveradio.online
     expose:
       - "80"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:80/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
 
   relay:
     build:
@@ -35,12 +25,5 @@ services:
     restart: unless-stopped
     environment:
       - PORT=8787
-      # Coolify magic var: route this service (port 8787) to the relay domain.
-      - SERVICE_FQDN_RELAY_8787=https://ws.shortwaveradio.online
     expose:
       - "8787"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8787/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
