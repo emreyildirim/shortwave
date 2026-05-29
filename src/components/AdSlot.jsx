@@ -13,11 +13,17 @@ import { useEffect, useRef } from 'react'
 //   real <ins class="adsbygoogle">. Until then we show a styled placeholder so
 //   the layout reserves the exact same space (no shift when ads go live).
 
-const CLIENT = import.meta.env?.VITE_ADSENSE_CLIENT || ''
+// Publisher ID is public (it ships in the page source). Overridable via env.
+const CLIENT = import.meta.env?.VITE_ADSENSE_CLIENT || 'ca-pub-3808303193630849'
 
 let loaderInjected = false
 function ensureAdSenseLoader(client) {
   if (loaderInjected || typeof document === 'undefined') return
+  // The loader is already in index.html <head>; don't add a second copy.
+  if (document.querySelector('script[src*="adsbygoogle.js"]')) {
+    loaderInjected = true
+    return
+  }
   loaderInjected = true
   const s = document.createElement('script')
   s.async = true
@@ -25,11 +31,6 @@ function ensureAdSenseLoader(client) {
   s.crossOrigin = 'anonymous'
   document.head.appendChild(s)
 }
-
-// As soon as a publisher ID is configured, load the AdSense snippet on every
-// page load — this is what Google checks for site/account review, so approval
-// works even while no ad units are rendered yet.
-if (CLIENT) ensureAdSenseLoader(CLIENT)
 
 export default function AdSlot({ slot, variant = 'desktop-bottom', label = 'SPONSORED TRANSMISSION' }) {
   const insRef = useRef(null)
