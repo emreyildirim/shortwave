@@ -2069,10 +2069,11 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   font-family: var(--font-stencil);
   font-size: 9px;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
   color: var(--paper-dim);
 }
 .site-nav a {
@@ -2191,6 +2192,33 @@ body::after {
 .paper-body a:hover { text-shadow: 0 0 6px var(--amber-glow); }
 .paper-body strong { color: var(--amber); }
 .paper-body em { color: var(--rx-green); font-style: italic; }
+
+.morse-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 6px 18px;
+  width: 100%;
+  margin: 6px 0 8px;
+}
+.morse-table tbody { display: contents; }
+.morse-table tr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  border-bottom: 1px dotted rgba(217,199,154,0.12);
+}
+.morse-table th {
+  font-family: var(--font-crt);
+  font-size: 20px;
+  color: var(--amber);
+  text-shadow: 0 0 5px var(--amber-glow);
+  width: 22px;
+  text-align: left;
+  font-weight: 400;
+}
+.morse-table td { font-size: 16px; line-height: 1; color: var(--brass-hi); }
+.code-cell span { margin-right: 3px; }
 .paper-foot {
   display: flex;
   align-items: center;

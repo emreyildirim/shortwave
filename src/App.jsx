@@ -40,7 +40,8 @@ export default function App() {
     setPath(to)
     window.scrollTo(0, 0)
   }
-  const onConsole = path !== '/about' && path !== '/privacy'
+  const CONTENT_PATHS = ['/about', '/privacy', '/learn', '/history', '/faq']
+  const onConsole = !CONTENT_PATHS.includes(path)
 
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
@@ -110,7 +111,7 @@ export default function App() {
   }, [sim.decodedLog, channel.remoteLog])
 
   if (!onConsole) {
-    return <InfoPage page={path === '/privacy' ? 'privacy' : 'about'} navigate={navigate} />
+    return <InfoPage page={path.slice(1)} navigate={navigate} />
   }
 
   if (isMobile) {
