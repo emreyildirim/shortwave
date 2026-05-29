@@ -1,0 +1,12 @@
+node_modules
+dist
+server
+.git
+.github
+.DS_Store
+*.local
+.vite
+Dockerfile
+docker-compose.yaml
+DEPLOY.md
+README.md

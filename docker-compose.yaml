@@ -1,0 +1,41 @@
+# Shortwave — deployed on Coolify as a single docker-compose resource.
+#
+#   web    → static Vite SPA served by nginx   → shortwaveradio.online
+#   relay  → WebSocket message bus (ws)         → ws.shortwaveradio.online
+#
+# In Coolify, after the first deploy, assign the domains per service:
+#   web   service, port 80   → https://shortwaveradio.online
+#   relay service, port 8787 → https://ws.shortwaveradio.online
+# Coolify/Traefik terminates TLS and proxies the WS upgrade automatically.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Baked into the SPA at build time. Keep in sync with the relay domain.
+        VITE_RADIO_URL: ${VITE_RADIO_URL:-wss://ws.shortwaveradio.online}
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  relay:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: 8787
+    expose:
+      - "8787"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8787/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
