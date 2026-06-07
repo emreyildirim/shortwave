@@ -57,9 +57,20 @@ export default function TuningKnob({ frequency, onChange }) {
   const knobRotation = -150 + rangePct * 300
 
   const onInputChange = (e) => {
-    // accept digits and a single decimal point only
+    // accept digits and a single decimal point only — strips letters, signs,
+    // scientific notation and any pasted non-numeric characters
     const cleaned = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
     setDraft(cleaned)
+  }
+
+  const onInputKeyDown = (e) => {
+    if (e.key === 'Enter') { e.currentTarget.blur(); return }
+    // allow control/navigation keys; block everything that isn't a digit or '.'
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End']
+    if (allowed.includes(e.key) || e.metaKey || e.ctrlKey) return
+    if (!/^[0-9.]$/.test(e.key)) e.preventDefault()
+    // only one decimal point
+    if (e.key === '.' && e.currentTarget.value.includes('.')) e.preventDefault()
   }
 
   const commitDraft = () => {
@@ -77,12 +88,13 @@ export default function TuningKnob({ frequency, onChange }) {
         <input
           type="text"
           inputMode="decimal"
+          pattern="[0-9]*\.?[0-9]*"
           className="tuner-input"
           value={readoutValue}
           onChange={onInputChange}
           onFocus={() => setDraft(formatMhz(frequency))}
           onBlur={commitDraft}
-          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+          onKeyDown={onInputKeyDown}
           aria-label="Frequency in MHz"
         />
         <span className="unit">MHz</span>
