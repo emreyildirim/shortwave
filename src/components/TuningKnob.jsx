@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const FREQ_MIN_KHZ = 1800
 const FREQ_MAX_KHZ = 148_000
 const DRAG_SENSITIVITY = 0.18 // kHz per pixel of vertical drag
 
+const formatMhz = (khz) => {
+  const mhz = Math.floor(khz / 1000)
+  const rem = String(khz % 1000).padStart(3, '0')
+  return `${mhz}.${rem}`
+}
+
 export default function TuningKnob({ frequency, onChange }) {
   const dragRef = useRef({ active: false, startY: 0, startFreq: 0 })
+  // draft holds the in-progress text while the readout is being edited; null = not editing
+  const [draft, setDraft] = useState(null)
 
   const clamp = (v) => Math.min(FREQ_MAX_KHZ, Math.max(FREQ_MIN_KHZ, Math.round(v)))
 
@@ -48,15 +56,35 @@ export default function TuningKnob({ frequency, onChange }) {
   const rangePct = (frequency - FREQ_MIN_KHZ) / (FREQ_MAX_KHZ - FREQ_MIN_KHZ)
   const knobRotation = -150 + rangePct * 300
 
-  const mhzPart = Math.floor(frequency / 1000)
-  const khzPart = String(frequency % 1000).padStart(3, '0')
+  const onInputChange = (e) => {
+    // accept digits and a single decimal point only
+    const cleaned = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    setDraft(cleaned)
+  }
+
+  const commitDraft = () => {
+    if (draft === null) return
+    const mhz = parseFloat(draft)
+    if (!Number.isNaN(mhz)) onChange(clamp(mhz * 1000))
+    setDraft(null)
+  }
+
+  const readoutValue = draft !== null ? draft : formatMhz(frequency)
 
   return (
     <div className="tuner">
       <div className="tuner-readout">
-        <span className="mhz">{mhzPart}</span>
-        <span className="dot-sep">.</span>
-        <span className="khz">{khzPart}</span>
+        <input
+          type="text"
+          inputMode="decimal"
+          className="tuner-input"
+          value={readoutValue}
+          onChange={onInputChange}
+          onFocus={() => setDraft(formatMhz(frequency))}
+          onBlur={commitDraft}
+          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+          aria-label="Frequency in MHz"
+        />
         <span className="unit">MHz</span>
       </div>
       <div className="tuner-controls">

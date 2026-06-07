@@ -682,6 +682,33 @@ body::after {
   letter-spacing: 0.06em;
   line-height: 1;
 }
+.tuner-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  color: var(--amber-bright);
+  text-shadow: inherit;
+  padding: 0;
+  caret-color: var(--amber-bright);
+}
+.tuner-input::selection {
+  background: rgba(255, 140, 0, 0.3);
+}
+/* strip the native number-input spin buttons */
+.tuner-input::-webkit-outer-spin-button,
+.tuner-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.tuner-input[type='number'] {
+  -moz-appearance: textfield;
+}
 .tuner-readout .mhz {
   color: var(--paper);
 }
