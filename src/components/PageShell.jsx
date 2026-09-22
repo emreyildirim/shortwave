@@ -30,14 +30,18 @@ const fmtDate = (iso) => {
   return `${d} ${MON[Number(m) - 1]} ${y}`
 }
 
-// S-meter badge. Reports how demanding a piece is — never a vote count.
-export function SignalMeter({ level }) {
+// Difficulty badge. Reports how demanding a piece is — never a vote count.
+// Deliberately NOT called s-meter: index.css already owns that name for the
+// console's analog signal-strength gauge, which is 88px tall with its own
+// background and border.
+export function LevelMeter({ level }) {
   return (
-    <span className={`s-meter s-${level}`} title={['','Entry level','Intermediate','Deep'][level]}>
+    <span className={`level-meter level-${level}`}
+          title={['', 'Entry level', 'Intermediate', 'Deep'][level]}>
       {[1, 2, 3].map((i) => (
-        <span key={i} className={i <= level ? 'bar on' : 'bar'} />
+        <span key={i} className={i <= level ? 'lm-bar on' : 'lm-bar'} />
       ))}
-      <span className="s-label">S{level * 3}</span>
+      <span className="lm-label">S{level * 3}</span>
     </span>
   )
 }
@@ -103,7 +107,7 @@ export default function PageShell({ path, navigate }) {
           <div className="post-head">
             <div className="post-meta-row">
               <span className={`flair flair-${post.flair.toLowerCase()}`}>{post.flair}</span>
-              <SignalMeter level={post.level} />
+              <LevelMeter level={post.level} />
               <span className="post-dot">·</span>
               <time dateTime={post.date}>{fmtDate(post.date)}</time>
               <span className="post-dot">·</span>

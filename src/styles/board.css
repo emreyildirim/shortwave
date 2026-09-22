@@ -139,18 +139,20 @@
 .flair-operating   { color: var(--oxidized); }
 .flair-history     { color: #c99a8a; }
 
-/* — S-meter: difficulty, never a vote count ——————————————— */
-.s-meter { display: inline-flex; align-items: flex-end; gap: 2px; }
-.s-meter .bar {
+/* — difficulty meter: never a vote count —————————————————— */
+/* Named level-meter, not s-meter: index.css owns .s-meter for the console's
+   analog gauge, and inheriting its 88px box stretched this one down the row. */
+.level-meter { display: inline-flex; align-items: flex-end; gap: 2px; }
+.level-meter .lm-bar {
   width: 3px;
   background: rgba(217, 199, 154, 0.18);
   border-radius: 1px;
 }
-.s-meter .bar:nth-child(1) { height: 5px; }
-.s-meter .bar:nth-child(2) { height: 8px; }
-.s-meter .bar:nth-child(3) { height: 11px; }
-.s-meter .bar.on { background: var(--amber); box-shadow: 0 0 5px var(--amber-glow); }
-.s-meter .s-label {
+.level-meter .lm-bar:nth-child(1) { height: 5px; }
+.level-meter .lm-bar:nth-child(2) { height: 8px; }
+.level-meter .lm-bar:nth-child(3) { height: 11px; }
+.level-meter .lm-bar.on { background: var(--amber); box-shadow: 0 0 5px var(--amber-glow); }
+.level-meter .lm-label {
   font-family: var(--font-crt);
   font-size: 12px;
   line-height: 1;
@@ -194,7 +196,7 @@
 }
 .board-row:hover { background: rgba(255, 176, 0, 0.035); }
 .board-row:last-child { border-bottom: none; }
-.board-meter { display: flex; justify-content: flex-start; padding-top: 3px; }
+.board-meter { display: flex; align-items: flex-start; justify-content: flex-start; padding-top: 4px; }
 .board-title {
   font-family: var(--font-display) !important;
   font-weight: 700;

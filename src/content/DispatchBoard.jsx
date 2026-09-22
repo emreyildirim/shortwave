@@ -7,7 +7,7 @@
 
 import { useState } from 'react'
 import { DISPATCHES, FLAIRS } from './dispatches/manifest.js'
-import { SignalMeter } from '../components/PageShell.jsx'
+import { LevelMeter } from '../components/PageShell.jsx'
 
 const MON = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
 const fmt = (iso) => {
@@ -68,7 +68,7 @@ export default function DispatchBoard() {
         {shown.map((d) => (
           <li className="board-row" key={d.slug}>
             <div className="board-meter">
-              <SignalMeter level={d.level} />
+              <LevelMeter level={d.level} />
             </div>
             <div className="board-main">
               <div className="board-tagline">

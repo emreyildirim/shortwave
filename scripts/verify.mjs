@@ -181,6 +181,51 @@ check('every route is reachable from the console', () => {
   return `${linked.size} links from /`
 })
 
+console.log('\nSTYLESHEET ISOLATION')
+check('no new stylesheet redefines a bare class that index.css owns', () => {
+  // A board meter reusing the name .s-meter silently inherited the console's
+  // analog gauge — an 88px box with its own background and border. Sharing
+  // design-system classes deliberately (.lede, .paper-body) is fine; what is
+  // not fine is two files each writing `.foo { ... }` for different widgets.
+  // Overrides inside @media blocks are legitimate: the print stylesheet has
+  // every reason to retarget .paper-body and .info-wrap. Only top-level
+  // redefinitions are the bug.
+  const stripAtBlocks = (css) => {
+    let out = '', i = 0
+    while (i < css.length) {
+      if (css.startsWith('@media', i) || css.startsWith('@supports', i)) {
+        let j = css.indexOf('{', i)
+        if (j < 0) break
+        let d = 1; j++
+        while (j < css.length && d > 0) { if (css[j] === '{') d++; else if (css[j] === '}') d--; j++ }
+        i = j; continue
+      }
+      out += css[i]; i++
+    }
+    return out
+  }
+  const bare = (file) => {
+    const css = stripAtBlocks(
+      readFileSync(join(ROOT, 'src', 'styles', file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' '))
+    const out = new Set()
+    for (const m of css.matchAll(/(?:^|\})([^{}]+)\{/g)) {
+      for (const sel of m[1].split(',')) {
+        const t = sel.trim()
+        if (!t || t.startsWith('@')) continue
+        const solo = t.match(/^\.([A-Za-z][\w-]*)$/)   // exactly `.foo`, nothing else
+        if (solo) out.add(solo[1])
+      }
+    }
+    return out
+  }
+  const base = bare('index.css')
+  const clashes = []
+  for (const f of ['board.css', 'tools.css'])
+    for (const c of bare(f)) if (base.has(c)) clashes.push(`.${c} in ${f}`)
+  assert(clashes.length === 0, clashes.join(', '))
+  return 'no bare-class shadowing'
+})
+
 console.log('\nHYDRATION SAFETY')
 check('no content component varies its markup between server and client', () => {
   // Browser-API access during render cannot reach here: it would throw in the
