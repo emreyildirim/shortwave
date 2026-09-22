@@ -58,6 +58,12 @@ loader is already in the page.
 AdSense → **Privacy & messaging** → **European regulations** → create the
 message, pick your ad partners, publish.
 
+> **This one is not optional bookkeeping.** `/privacy` now states that a
+> consent message appears for EEA/UK/Swiss visitors and that the choice can
+> be withdrawn. That sentence is only true once Funding Choices is published.
+> Until you do it, the privacy policy describes something the site does not
+> do — so either publish the message or remove that section.
+
 ### 5. Create the ad units and set the build variable
 
 The ad slot currently renders a reserved empty frame. To go live, create an
