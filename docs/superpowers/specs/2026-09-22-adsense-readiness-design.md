@@ -269,3 +269,49 @@ assumed:
 - **`/` remains app-only.** Accepted deliberately. Mitigated by distinct
   metadata, JSON-LD, the `<noscript>` link path, and substantial linked
   content one click away.
+
+---
+
+## Addendum — what changed after approval
+
+Recorded on 2026-09-23, after the work shipped. The design above is the
+version that was approved; these are the deviations, all of them requested.
+
+1. **The console at `/` was opened up.** Section 3 froze it entirely and
+   section 6 left the footer optional. The owner then said the footer could
+   be touched. `SiteFooter` now builds itself from the route manifest and
+   links every section. The console's layout, audio, relay and key behaviour
+   are still untouched.
+
+2. **A dispatch board was added** at `/dispatches`, with ten posts —
+   about 14,000 of the site's 28,000 rendered words. It was asked for as a
+   blog "with a Reddit feel", which the layout provides: flair tags, a
+   filterable list, meters down the left margin.
+
+   It carries **no user-generated content**. There is no backend to persist
+   it, UGC brings moderation obligations and spam exposure a site this size
+   cannot carry, and fabricating usernames, votes or comment counts to
+   furnish the aesthetic would be dishonest. The meter reports how demanding
+   a piece is, the page says so in its opening paragraph, and every post is
+   attributed to the station.
+
+3. **Phases 1 and 2 shipped together** rather than sequentially. The
+   sequencing in 5.6 existed to start indexing early; since all of it was
+   finished in one pass, there was nothing to gain by holding content back.
+
+4. **`/faq` was expanded** from 7 entries to 17, which section 5 did not
+   plan for. It was under the substantive-content threshold and it feeds the
+   FAQPage structured data.
+
+### Two defects found during verification, both self-inflicted
+
+- The board's difficulty badge was called `.s-meter`, a name `index.css`
+  already used for the console's analog signal gauge. It inherited an 88px
+  box with a background and border. Renamed to `.level-meter`.
+- `nginx.conf` gained a `types { text/plain txt; }` block. In nginx a types
+  block inside `server` replaces the inherited MIME map rather than
+  extending it, so `.css` and `.js` would have been served as the default
+  type and the site would not have loaded at all.
+
+Both are now covered by checks in `scripts/verify.mjs`, because neither was
+reachable by the tests that existed when they were introduced.
