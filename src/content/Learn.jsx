@@ -91,6 +91,19 @@ export default function Learn() {
         this site implements exactly this, and will not advance you until you
         clear the bar.
       </p>
+      <p>
+        The usual opening pair is K and M, chosen because they are distinct from
+        each other and neither is trivially short. If you would rather start
+        somewhere gentler, the shortest and most common letters work too —
+        <strong> E</strong> (•), <strong>T</strong> (▬), <strong>A</strong>
+        (•▬), <strong>N</strong> (▬•), <strong>I</strong> (••) and
+        <strong> M</strong> (▬▬). Whichever set you pick, name each character to
+        yourself in sound rather than in symbols: <em>di-dah</em> for A,
+        <em> dah-di-di-dit</em> for B, <em>dah-di-dah-dit</em> for C. The
+        vowel change is not decoration — a dot at the end of a character is a
+        <em> dit</em> and a dot in the middle is a <em>di</em>, which is exactly
+        how the rhythm falls when it is keyed properly.
+      </p>
 
       <h2>The mistakes that stall people</h2>
       <p>
