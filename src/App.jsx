@@ -9,8 +9,9 @@ import ChannelPanel from './components/ChannelPanel.jsx'
 import SignalStream from './components/SignalStream.jsx'
 import MobileConsole from './components/MobileConsole.jsx'
 import AdSlot from './components/AdSlot.jsx'
-import InfoPage from './components/InfoPage.jsx'
+import PageShell from './components/PageShell.jsx'
 import SiteFooter from './components/SiteFooter.jsx'
+import { byPath } from './routes.js'
 import {
   loadCallsign, saveCallsign,
   loadFrequency, saveFrequency,
@@ -25,8 +26,9 @@ export default function App() {
   const [notepad, setNotepadState] = useState(() => loadNotepad())
   const isMobile = useIsMobile()
 
-  // Tiny path router: '/' is the console, '/about' & '/privacy' are content
-  // pages. nginx serves index.html for all paths (SPA fallback).
+  // Tiny path router driven by src/routes.js. Every route is prerendered to
+  // its own file, so a cold load lands on real HTML and this only takes over
+  // for in-page navigation.
   const [path, setPath] = useState(() =>
     typeof window === 'undefined' ? '/' : window.location.pathname)
   useEffect(() => {
@@ -40,8 +42,10 @@ export default function App() {
     setPath(to)
     window.scrollTo(0, 0)
   }
-  const CONTENT_PATHS = ['/about', '/privacy', '/learn', '/history', '/faq']
-  const onConsole = !CONTENT_PATHS.includes(path)
+  // The route manifest decides: anything that isn't the console is content.
+  // Unknown paths are served as a real 404 by nginx and never reach here.
+  const route = byPath(path)
+  const onConsole = !route || route.kind === 'app'
 
   const setCallsign = (v) => {
     const clean = saveCallsign(v)
@@ -111,7 +115,7 @@ export default function App() {
   }, [sim.decodedLog, channel.remoteLog])
 
   if (!onConsole) {
-    return <InfoPage page={path.slice(1)} navigate={navigate} />
+    return <PageShell path={route.path} navigate={navigate} />
   }
 
   if (isMobile) {

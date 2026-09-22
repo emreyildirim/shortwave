@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# The console is an interactive app; these are the readable pages.
+Sitemap: https://shortwaveradio.online/sitemap.xml

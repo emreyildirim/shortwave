@@ -1,10 +1,13 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './styles/index.css'
+import './styles/board.css'
+import './styles/tools.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+const el = document.getElementById('root')
+const tree = <React.StrictMode><App /></React.StrictMode>
+
+// Content routes ship prerendered markup; the console ships an empty root.
+if (el.firstElementChild) hydrateRoot(el, tree)
+else createRoot(el).render(tree)
