@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "build:client": "vite build"
+    "build:client": "vite build",
+    "verify": "node scripts/verify.mjs",
+    "check": "npm run build && npm run verify"
   },
   "dependencies": {
     "react": "^18.3.1",
