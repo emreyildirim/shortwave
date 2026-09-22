@@ -55,8 +55,13 @@ VITE_RADIO_URL=wss://relay.example.com npm run build
 
 ## Deploying
 
-The frontend is a plain Vite static build; the relay is a tiny Node WS
-server. Two pieces, two deploy targets.
+The frontend is a static build; the relay is a tiny Node WS server. Two
+pieces, two deploy targets.
+
+`npm run build` runs three steps: the client build, an SSR build, then
+`scripts/prerender.mjs`, which writes a real HTML file for every route along
+with `sitemap.xml` and a static `404.html`. The deploy artifact is still
+just `dist/` served by nginx — nothing about the hosting changed.
 
 ### Coolify (self-hosted)
 
@@ -91,19 +96,53 @@ WebSockets and the `/healthz` check are configured. The default region is
 .
 ├── index.html
 ├── package.json            # frontend deps
+├── scripts/
+│   ├── prerender.mjs       # writes one HTML file per route + sitemap + 404
+│   ├── verify.mjs          # build-output invariants (npm run verify)
+│   └── hydration-check.mjs # loads every route in real Chrome
 ├── src/
-│   ├── App.jsx             # top-level layout
-│   ├── components/         # RadioPanel, MorseTree, ChannelPanel, …
+│   ├── App.jsx             # top-level layout + router
+│   ├── routes.js           # every public URL, its title and metadata
+│   ├── entry-server.jsx    # build-time SSR entry (never shipped)
+│   ├── components/         # RadioPanel, MorseTree, PageShell, …
+│   ├── content/            # one component per content page
+│   │   ├── registry.jsx    # path → component
+│   │   └── dispatches/     # the board's posts + their manifest
 │   ├── hooks/              # useMorseSimulator, useRadioChannel
 │   ├── data/morse.js       # alphabet + tree layout coordinates
 │   ├── lib/identity.js     # callsign / frequency / notepad persistence
-│   └── styles/index.css    # the whole bakelite-and-amber theme
+│   └── styles/             # index.css (console) + board.css + tools.css
 └── server/
     ├── index.js            # WebSocket relay (rooms keyed by freq)
     ├── package.json
     ├── Dockerfile
     └── fly.toml
 ```
+
+## Adding a page
+
+One entry in `src/routes.js` and one component in `src/content/registry.jsx`.
+The prerenderer, the sitemap, and the site navigation all read the manifest,
+so nothing else needs touching.
+
+Content components must be **pure** — no `window`, no `Date.now()`, no
+`Math.random()` during render — because they are server-rendered at build
+time and hydrated in the browser. Interactive pages may use hooks, but their
+first render has to be deterministic. `npm run check` catches violations.
+
+## Checks
+
+```bash
+npm run build     # client build → SSR build → prerender
+npm run verify    # invariants on dist/ (metadata, 404, sitemap, links)
+npm run check     # build + verify + real-Chrome hydration pass
+```
+
+`npm run verify:browser` needs something serving `dist/` on :4173, e.g.
+`cd dist && python3 -m http.server 4173`.
+
+See **[docs/ADSENSE.md](./docs/ADSENSE.md)** for why these checks exist and
+what still has to be done by hand in Search Console and AdSense.
 
 ## License
 

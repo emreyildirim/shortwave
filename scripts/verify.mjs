@@ -131,6 +131,27 @@ check('nginx serves a real 404 rather than the SPA shell', () => {
   return 'try_files =404'
 })
 
+check('nginx.conf does not replace the inherited MIME map', () => {
+  // A `types { ... }` block inside server REPLACES the map rather than
+  // extending it, so .css and .js would be served as the default type and
+  // the page would not load at all. There is no nginx here to catch this at
+  // runtime, so it is caught here instead.
+  const c = readFileSync(join(ROOT, 'nginx.conf'), 'utf8').replace(/#[^\n]*/g, '')
+  assert(!/\btypes\s*\{/.test(c), 'a types block would shadow mime.types')
+  return 'mime.types inherited'
+})
+
+check('nginx and the build agree on which files exist', () => {
+  // Each location = /foo must correspond to a file the build actually emits.
+  const c = readFileSync(join(ROOT, 'nginx.conf'), 'utf8').replace(/#[^\n]*/g, '')
+  const missing = [...c.matchAll(/location\s*=\s*\/([\w.-]+)/g)]
+    .map((m) => m[1])
+    .filter((f) => !['healthz', 'index.html'].includes(f))
+    .filter((f) => !existsSync(join(DIST, f)))
+  assert(missing.length === 0, `nginx references files the build does not emit: ${missing.join(', ')}`)
+  return 'all referenced files exist'
+})
+
 console.log('\nCRAWLER FILES — served as HTML with a 200 before')
 check('robots.txt is a real file declaring the sitemap', () => {
   const p = join(DIST, 'robots.txt')
