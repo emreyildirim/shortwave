@@ -1,5 +1,40 @@
 # AdSense — what was fixed, and what you have to do by hand
 
+## What AdSense actually said
+
+Read from the AdSense console on 23 Sep 2026, under Sites →
+shortwaveradio.online → "Bazı politika ihlalleri tespit ettik". Two cited
+violations, quoted rather than paraphrased:
+
+**"Yayıncı içeriği olmayan ekranlarda gösterilen, Google tarafından sunulan
+reklamlar"** — Google-served ads on screens with no publisher content. Not
+allowed on "içerik bulunmayan veya düşük değere sahip olan içeriklerin yer
+aldığı ekranlar" (screens with no content or low-value content), screens
+under construction, or screens used for alerts and navigation.
+
+**"Düşük değere sahip içerik"** — low-value content. Before resubmitting the
+site must offer "özgün ve yüksek kaliteli bilgiler, araçlar veya hizmetler"
+(original, high-quality information, tools or services), show "sürekli
+içerik seçimi ve yapısal istikrar", and hold real user interest.
+
+Both map exactly onto what the diagnosis below found. The first is the
+soft-404: every nonexistent URL returned 200 with the console and an ad slot
+on it, which is precisely "an ad on a screen with no publisher content". The
+second is the ~850 words of content, most of it invisible to a crawler.
+
+Site ownership was already verified (green) — that was never the problem.
+The payments profile is complete too; the onboarding banner about payment
+details is generic text, not an outstanding action.
+
+## How to resubmit
+
+AdSense → **Siteler** → `shortwaveradio.online` → **Bazı politika ihlalleri
+tespit ettik** → tick **"Sorunları giderdiğimi onaylıyorum"** → **"İnceleme
+iste"**.
+
+Do not tick that box until the fixes are actually live; it is a declaration
+to Google that the violations are gone.
+
 ## Why the site was rejected
 
 Four things, all verified against the live site before any of this was
