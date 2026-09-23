@@ -5,7 +5,7 @@
 // the server-rendered markup and the first client render must be identical
 // or React will throw a hydration mismatch.
 
-export const CONTACT = '98yildirimemre@gmail.com'
+export const CONTACT = 'info@shortwaveradio.online'
 export const GITHUB = 'https://github.com/emreyildirim/shortwave'
 
 export const DIGITS = {
