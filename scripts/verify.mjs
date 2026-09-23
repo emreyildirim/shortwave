@@ -125,10 +125,32 @@ check('404.html is marked noindex', () => {
   return 'noindex'
 })
 check('nginx serves a real 404 rather than the SPA shell', () => {
-  const c = readFileSync(join(ROOT, 'nginx.conf'), 'utf8')
-  assert(!/try_files[^;]*\/index\.html/.test(c), 'SPA fallback still routes unknown paths to index.html')
+  // The catch-all `location /` is what decides an unknown URL's fate. Its
+  // try_files must end at =404, not fall back to the app shell. `location = /`
+  // naming /index.html is fine — that IS the homepage, not a fallback.
+  const c = readFileSync(join(ROOT, 'nginx.conf'), 'utf8').replace(/#[^\n]*/g, '')
+  const m = c.match(/location\s+\/\s*\{([\s\S]*?)\}/)
+  assert(m, 'no catch-all location / block')
+  const tf = (m[1].match(/try_files([^;]+);/) || [])[1]
+  assert(tf, 'catch-all location / has no try_files')
+  assert(/=404\s*$/.test(tf.trim()), `catch-all falls back to "${tf.trim().split(/\s+/).pop()}" instead of =404`)
   assert(/error_page\s+404/.test(c), 'no error_page directive')
-  return 'try_files =404'
+  return 'catch-all ends at =404'
+})
+
+check('nginx serves sitemap URLs directly, with no redirect', () => {
+  // Two traps, both only visible in production. `try_files ... $uri/ ...`
+  // makes nginx 301 /learn to /learn/, so every sitemap URL and every
+  // canonical points at a redirect. And because Traefik terminates TLS,
+  // nginx builds that redirect as http://, turning it into an
+  // https -> http -> https chain. Neither is reproducible locally, so the
+  // config is asserted instead.
+  const c = readFileSync(join(ROOT, 'nginx.conf'), 'utf8').replace(/#[^\n]*/g, '')
+  const tf = [...c.matchAll(/try_files([^;]+);/g)].map((m) => m[1])
+  const dirMatch = tf.find((t) => /\$uri\/(?!index\.html)/.test(t))
+  assert(!dirMatch, `try_files "${(dirMatch || '').trim()}" would 301 to the trailing-slash form`)
+  assert(/absolute_redirect\s+off/.test(c), 'absolute_redirect is not off; redirects would downgrade to http')
+  return 'no trailing-slash 301, no scheme downgrade'
 })
 
 check('nginx.conf does not replace the inherited MIME map', () => {
