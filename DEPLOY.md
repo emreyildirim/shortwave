@@ -41,12 +41,20 @@ Coolify issues Let's Encrypt certs and proxies the WS upgrade through Traefik.
 
 ## 4. Auto-deploy on push
 
-- **Private repo:** install the **Coolify GitHub App** on `emreyildirim/shortwave`
-  (Coolify → Sources → GitHub) — gives push-triggered redeploys.
-- **Public repo:** in the app's **Webhooks** tab, copy the deploy webhook URL and
-  add it to GitHub → repo **Settings → Webhooks** (content type `application/json`).
+Wired up, 23 Sep 2026. A push webhook on `emreyildirim/shortwave` posts to
+Coolify's manual GitHub endpoint:
 
-Push to `main` → Coolify rebuilds and redeploys automatically.
+| Setting | Value |
+|---------|-------|
+| Payload URL | `https://coolify.4fnext.com/webhooks/source/github/events/manual` |
+| Content type | `application/json` |
+| Secret | set on both ends (Coolify → Webhooks → GitHub Webhook Secret) |
+| Events | push only |
+
+Push to `main` → Coolify rebuilds and redeploys automatically. Before this
+existed every deploy was a manual **Redeploy** click, and a push alone
+changed nothing on the server — if a deploy ever stops firing, check
+**Recent Deliveries** on the GitHub webhook first.
 
 ## 5. Verify
 
