@@ -26,6 +26,27 @@ Site ownership was already verified (green) — that was never the problem.
 The payments profile is complete too; the onboarding banner about payment
 details is generic text, not an outstanding action.
 
+## Second pass, 1 Oct 2026
+
+An audit a week after the first fixes went live found the cited violation
+still present, and two smaller problems:
+
+- **The console still carried an ad unit**, on desktop and mobile. 76 words
+  of crawlable HTML, all of it UI labels — exactly "an ad on a screen with no
+  publisher content". The console now carries neither an ad unit nor the
+  loader. About, contact, privacy and terms get the same treatment through
+  `ads: false` in `src/routes.js`.
+- **The dispatches were backdated.** All ten were written on 23 Sep 2026 but
+  dated across July to September, and Google was already showing those
+  dates in results. They now carry their real date, and `verify` rejects
+  any dispatch dated before launch.
+- **www answered 404.** It is now a Coolify domain for the web service, and
+  nginx returns a 301 to the apex.
+
+Keep **Auto ads off** in AdSense. The loader is absent from the ad-free
+pages, but a visitor who navigates client-side from a content page back to
+the console still has it loaded, and Auto ads would place units there.
+
 ## How to resubmit
 
 AdSense → **Siteler** → `shortwaveradio.online` → **Bazı politika ihlalleri
