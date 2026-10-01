@@ -47,6 +47,10 @@ Keep **Auto ads off** in AdSense. The loader is absent from the ad-free
 pages, but a visitor who navigates client-side from a content page back to
 the console still has it loaded, and Auto ads would place units there.
 
+Review requested on 1 Oct 2026, 15:51 GMT+3 — status moved from
+"Müdahale edilmesi gerekiyor" to "Hazırlanıyor". The Ads section had no
+Auto ads switch yet; it appears only after approval, so check it then.
+
 ## How to resubmit
 
 AdSense → **Siteler** → `shortwaveradio.online` → **Bazı politika ihlalleri
