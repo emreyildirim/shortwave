@@ -107,7 +107,7 @@ body::after {
   width: 100vw;
   padding: 14px;
   display: grid;
-  grid-template-rows: auto 1fr auto auto auto;
+  grid-template-rows: auto 1fr auto auto;
   gap: 12px;
   background:
     radial-gradient(ellipse at 50% 40%, #221813 0%, #0c0907 70%, #050302 100%),

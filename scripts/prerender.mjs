@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = join(ROOT, 'dist')
 
-const { render, ROUTES, contentRoutes, ORIGIN, QA } =
+const { render, ROUTES, contentRoutes, ORIGIN, QA, carriesAds } =
   await import(join(ROOT, 'dist-ssr', 'entry-server.js'))
 
 const template = readFileSync(join(DIST, 'index.html'), 'utf8')
@@ -78,6 +78,10 @@ function pageFor(route, body) {
     .replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${esc(route.description)}" />`)
     .replace('</head>', buildHead(route) + '\n  </head>')
   if (body) html = html.replace('<div id="root"></div>', `<div id="root">${body}</div>`)
+  // A page that carries no ad unit carries no loader either: with Auto ads
+  // switched on, the loader alone would place ads on a contentless screen.
+  // The account meta tag stays, so site ownership is unaffected.
+  if (!carriesAds(route)) html = html.replace(/\s*<script[^>]*adsbygoogle\.js[^>]*><\/script>/, '')
   return html
 }
 

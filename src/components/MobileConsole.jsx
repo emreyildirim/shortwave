@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
 import SignalStream from './SignalStream.jsx'
-import AdSlot from './AdSlot.jsx'
 import SiteFooter from './SiteFooter.jsx'
 import { randomFrequency } from '../lib/identity.js'
 
@@ -77,8 +76,6 @@ export default function MobileConsole({
           <span className="m-net-dot" />{statusLabel}
         </div>
       </header>
-
-      <AdSlot variant="mobile-top" slot={import.meta.env?.VITE_ADSENSE_SLOT_TOP} />
 
       <section className="m-readout">
         <div className="m-readout-head">

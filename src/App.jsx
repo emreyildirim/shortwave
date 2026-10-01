@@ -8,7 +8,6 @@ import MessageLog from './components/MessageLog.jsx'
 import ChannelPanel from './components/ChannelPanel.jsx'
 import SignalStream from './components/SignalStream.jsx'
 import MobileConsole from './components/MobileConsole.jsx'
-import AdSlot from './components/AdSlot.jsx'
 import PageShell from './components/PageShell.jsx'
 import SiteFooter from './components/SiteFooter.jsx'
 import { byPath } from './routes.js'
@@ -197,8 +196,6 @@ export default function App() {
           onKeyUp={sim.endKey}
           label={listening ? 'RX ONLY' : 'CW'}
         />
-
-        <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
 
         <SiteFooter navigate={navigate} variant="desktop" />
       </div>

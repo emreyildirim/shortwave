@@ -13,5 +13,5 @@ export function render(path) {
   return renderToString(<PageShell path={path} navigate={null} />)
 }
 
-export { ROUTES, contentRoutes, ORIGIN } from './routes.js'
+export { ROUTES, contentRoutes, ORIGIN, carriesAds } from './routes.js'
 export { QA } from './content/faqData.js'

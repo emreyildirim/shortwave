@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DIST = join(ROOT, 'dist')
-const { ROUTES, ORIGIN } = await import(join(ROOT, 'dist-ssr', 'entry-server.js'))
+const { ROUTES, ORIGIN, carriesAds } = await import(join(ROOT, 'dist-ssr', 'entry-server.js'))
 
 let pass = 0
 const failures = []
@@ -109,6 +109,29 @@ check('the console ships a noscript crawl path', () => {
 })
 
 console.log('\nNO ADS ON CONTENTLESS URLS — the soft-404 defect')
+check('no ad code on the console or the station pages', () => {
+  // AdSense cited "ads on screens without publisher content". The console is
+  // an instrument, and about/contact/privacy/terms are navigation, not
+  // reading matter — neither may carry the loader or an ad unit.
+  const dirty = ROUTES.filter((r) => !carriesAds(r))
+    .filter((r) => /adsbygoogle|googlesyndication/.test(read(r.path))).map((r) => r.path)
+  assert(dirty.length === 0, `ad code on: ${dirty.join(', ')}`)
+  return `${ROUTES.filter((r) => !carriesAds(r)).length} routes clean`
+})
+check('the console source renders no ad slot', () => {
+  const src = ['src/App.jsx', 'src/components/MobileConsole.jsx']
+    .filter((f) => /AdSlot/.test(readFileSync(join(ROOT, f), 'utf8')))
+  assert(src.length === 0, `AdSlot used in ${src.join(', ')}`)
+  return 'desktop + mobile'
+})
+check('no dispatch is dated before the site existed', () => {
+  // The posts were once backdated to look like a running archive. Google
+  // shows these dates in results; they must be the real publication dates.
+  const LAUNCH = '2026-09-22'
+  const early = ROUTES.filter((r) => r.dispatch && r.dispatch.date < LAUNCH).map((r) => r.path)
+  assert(early.length === 0, `dated before ${LAUNCH}: ${early.join(', ')}`)
+  return 'all on or after launch'
+})
 check('404.html carries no ad code', () => {
   const h = readFileSync(join(DIST, '404.html'), 'utf8')
   assert(!/adsbygoogle|googlesyndication/.test(h), 'ad code present on 404')

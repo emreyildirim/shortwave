@@ -2,7 +2,7 @@
 // directory nav, the page body, and the footer. Pure — safe to prerender.
 
 import AdSlot from './AdSlot.jsx'
-import { navGroups, byPath } from '../routes.js'
+import { navGroups, byPath, carriesAds } from '../routes.js'
 import { componentFor } from '../content/registry.jsx'
 import { CONTACT, GITHUB } from '../content/shared.jsx'
 
@@ -145,9 +145,11 @@ export default function PageShell({ path, navigate }) {
         </footer>
       </article>
 
-      <div className="info-ad">
-        <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
-      </div>
+      {carriesAds(route) ? (
+        <div className="info-ad">
+          <AdSlot variant="desktop-bottom" slot={import.meta.env?.VITE_ADSENSE_SLOT_BOTTOM} />
+        </div>
+      ) : null}
 
       <p className="colophon">
         Shortwave is a free, open-source field-radio simulator. Corrections to

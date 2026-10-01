@@ -8,6 +8,11 @@ import { DISPATCHES } from './content/dispatches/manifest.js'
 
 export const ORIGIN = 'https://shortwaveradio.online'
 
+// AdSense refuses ads on screens without publisher content: the console (an
+// instrument, not reading matter) and the station's navigation pages. Those
+// routes set `ads: false`; the console is excluded by kind.
+export const carriesAds = (r) => r.kind !== 'app' && r.ads !== false
+
 // group → the nav column a route appears under. 'none' keeps it out of nav.
 export const GROUPS = [
   { id: 'tools',     label: 'INSTRUMENTS' },
@@ -84,7 +89,7 @@ export const ROUTES = [
   page('/about',
     'About Shortwave — A Field Radio You Can Key in a Browser | Shortwave',
     'What this station is, how the relay puts two operators on the same frequency, and who built it.',
-    'station', 'ABOUT'),
+    'station', 'ABOUT', { ads: false }),
   page('/faq',
     'Frequently Asked Questions | Shortwave',
     'How to transmit, what a frequency means here, why you might be in listen-only, and what happens to anything you key.',
@@ -92,17 +97,17 @@ export const ROUTES = [
   page('/contact',
     'Contact the Station | Shortwave',
     'How to reach the operator behind Shortwave — bug reports, corrections to the reference pages, and everything else.',
-    'station', 'CONTACT', { priority: 0.4 }),
+    'station', 'CONTACT', { priority: 0.4, ads: false }),
 
   // — legal ——————————————————————————————————————————————
   page('/privacy',
     'Privacy Policy | Shortwave',
     'What Shortwave stores (almost nothing), what passes through the relay, and how advertising cookies are handled.',
-    'none', 'PRIVACY', { priority: 0.3 }),
+    'none', 'PRIVACY', { priority: 0.3, ads: false }),
   page('/terms',
     'Terms of Service | Shortwave',
     'The terms you accept by using Shortwave: acceptable use on the relay, what is provided as-is, and the limits of that.',
-    'none', 'TERMS', { priority: 0.3 }),
+    'none', 'TERMS', { priority: 0.3, ads: false }),
 
   // — dispatch posts ————————————————————————————————————
   ...DISPATCHES.map((d) => ({
